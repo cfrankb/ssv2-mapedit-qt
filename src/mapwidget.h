@@ -18,8 +18,12 @@ public:
     virtual ~CMapWidget();
     void setMap(CScript *pMap);
     int at(int x, int y);
+    void select(int selected);
+    int selected();
+    void translate(int tx, int ty);
 
 signals:
+    void mapSpoiled();
 
 protected slots:
     void showGrid(bool show);
@@ -60,18 +64,19 @@ protected:
     inline void drawFont(CFrame & frame, int x, int y, const char *text, const uint32_t color, const bool alpha);
     //inline void drawTile(CFrame & bitmap, const int x, const int y, CFrame & tile, const bool alpha);
     //inline void drawGrid(CFrame & bitmap);
+    void drawSelectionRect(CFrame &bitmap, int entryID);
+    CFrame * fromEntry(const CActor &entry);
 
     QTimer m_timer;
     CFrameSet *m_tiles = nullptr;
     CFrameSet *m_player = nullptr;
-    //CFrameSet *m_animz = nullptr;
     uint8_t *m_fontData = nullptr;
     CScript *m_map = nullptr;
-    //CAnimator *m_animator = nullptr;
     bool m_showGrid = false;
     bool m_animate = false;
     uint32_t m_ticks = 0;
     std::string m_tileset;
+    int m_selected = INVALID;
     friend class CMapScroll;
 };
 

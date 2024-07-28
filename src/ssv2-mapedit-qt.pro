@@ -11,6 +11,9 @@ INCLUDEPATH += shared/ headers/ ./
 
 SOURCES += \
     actor.cpp \
+    debug.cpp \
+    framemap.cpp \
+    imswrap.cpp \
     main.cpp \
     mainwindow.cpp \
     #mapentry.cpp \
@@ -30,7 +33,10 @@ SOURCES += \
 
 HEADERS += \
     actor.h \
+    debug.h \
     defs.h \
+    framemap.h \
+    imswrap.h \
     mainwindow.h \
     #mapentry.h \
     mapfile.h \

@@ -33,11 +33,19 @@
      </property>
      <addaction name="actionNothing_yet"/>
     </widget>
+    <widget class="QMenu" name="menuExport">
+     <property name="title">
+      <string>Export</string>
+     </property>
+     <addaction name="actionExport_Map_Object_List"/>
+    </widget>
     <addaction name="actionFile_New_File"/>
     <addaction name="actionFile_Open"/>
     <addaction name="menuRecent_Maps"/>
     <addaction name="actionFile_Save"/>
     <addaction name="actionFile_Save_as"/>
+    <addaction name="separator"/>
+    <addaction name="menuExport"/>
     <addaction name="separator"/>
     <addaction name="actionFile_Exit"/>
    </widget>
@@ -45,6 +53,10 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionEdit_Cut"/>
+    <addaction name="actionEdit_Copy"/>
+    <addaction name="actionEdit_Paste"/>
+    <addaction name="actionEdit_Delete"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -53,8 +65,16 @@
     <addaction name="actionHelp_About"/>
     <addaction name="actionHelp_About_Qt"/>
    </widget>
+   <widget class="QMenu" name="menuMap">
+    <property name="title">
+     <string>Map</string>
+    </property>
+    <addaction name="actionMap_Previous"/>
+    <addaction name="actionMap_Next"/>
+   </widget>
    <addaction name="menuFIle"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuMap"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -108,6 +128,53 @@
   <action name="actionHelp_About_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionExport_Map_Object_List">
+   <property name="text">
+    <string>Map Object List</string>
+   </property>
+  </action>
+  <action name="actionEdit_Cut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionEdit_Copy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionEdit_Paste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionEdit_Delete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionMap_Previous">
+   <property name="text">
+    <string>Previous Map</string>
+   </property>
+  </action>
+  <action name="actionMap_Next">
+   <property name="text">
+    <string>Next Map</string>
    </property>
   </action>
  </widget>

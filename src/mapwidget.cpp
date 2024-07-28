@@ -1,6 +1,7 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <algorithm>
+#include <cstdlib>
 #include "mapwidget.h"
 #include "mapscroll.h"
 #include "Frame.h"
@@ -29,13 +30,13 @@ CMapWidget::~CMapWidget()
 void CMapWidget::setMap(CScript *pMap)
 {
     qDebug("setMap");
+    m_selected = INVALID;
     m_map = pMap;
     if (m_map->tileset() != m_tileset) {
         m_tileset = m_map->tileset();
         loadTileset();
     }
 }
-
 
 void CMapWidget::loadTileset()
 {
@@ -46,7 +47,6 @@ void CMapWidget::loadTileset()
         file.close();
         qDebug("tiles: %d\n", m_tiles->getSize());
     }
-
 }
 
 void CMapWidget::showGrid(bool show)
@@ -81,6 +81,7 @@ void CMapWidget::paintEvent(QPaintEvent *)
         if (m_showGrid) {
            // drawGrid(bitmap);
         }
+        drawSelectionRect(bitmap, m_selected);
     }
 
     if (width !=0 && height != 0) {
@@ -97,6 +98,83 @@ void CMapWidget::paintEvent(QPaintEvent *)
     p.end();
 }
 
+void CMapWidget::drawSelectionRect(CFrame &bitmap, int entryID)
+{
+    if (entryID == INVALID || !m_map) {
+        return;
+    }
+    uint32_t color = rand();
+    const int maxRows = bitmap.hei() / FNT_BLOCK_SIZE;
+    const int maxCols = bitmap.len() / FNT_BLOCK_SIZE;
+    const int rows = std::min(maxRows, static_cast<int>(MAX_AXIS));
+    const int cols = std::min(maxCols, static_cast<int>(MAX_AXIS));
+    CMapScroll *scr = static_cast<CMapScroll*>(parent());
+    const int mx = scr->horizontalScrollBar()->value();
+    const int my = scr->verticalScrollBar()->value();
+    const uint scrLen = bitmap.len();
+    const uint scrHei = bitmap.hei();
+
+    const auto &entry{(*m_map)[entryID]};
+    const int rx = entry.x - mx;
+    const int ry = entry.y - my;
+    CFrame *frame = fromEntry(entry);
+    const int fcols = frame->len() / FNT_BLOCK_SIZE;
+    const int frows = frame->hei() / FNT_BLOCK_SIZE;
+    if ((rx < cols) &&
+        (rx + fcols > 0) &&
+        (ry < rows) &&
+        (ry + frows > 0))
+    {
+        const int offsetX = rx < 0 ? -rx : 0;
+        const int offsetY = ry < 0 ? -ry : 0;
+        const int flen = fcols - offsetX;
+        const int fhei = frows - offsetY;
+        const int sx = rx > 0 ? rx : 0;
+        const int sy = ry > 0 ? ry : 0;
+        const int maxX = flen * FNT_BLOCK_SIZE -1;
+        const int maxY = fhei * FNT_BLOCK_SIZE -1;
+        const uint baseX = sx * FNT_BLOCK_SIZE;
+        const uint baseY = sy * FNT_BLOCK_SIZE;
+        for (int y = 0; y <= maxY; ++y)
+        {
+            if (baseY + y >= scrHei)
+                break;
+            uint32_t *rgba = &bitmap.at(baseX, baseY + y);
+            for (int x = 0; x <= maxX ; ++x)
+            {
+                if (baseX + x >= scrLen)
+                    break;
+                if (y == maxY || (y == 0 && ry >= 0) ||
+                    (x == maxX || (x == 0 && rx >= 0))) {
+                    rgba[x] = color;
+                }
+            }
+        }
+    }
+}
+
+CFrame * CMapWidget::fromEntry(const CActor &entry)
+{
+    CFrame *frame{nullptr};
+    if (entry.type == TYPE_PLAYER)
+    {
+        frame = (*m_player)[PLAYER_FRAME_CYCLE];
+    }
+    else if (entry.type == TYPE_POINTS)
+    {
+        frame = nullptr;
+    }
+    else if (entry.imageId >= m_tiles->getSize())
+    {
+        frame = nullptr;
+    }
+    else
+    {
+        frame = (*m_tiles)[entry.imageId];
+    }
+    return frame;
+}
+
 void CMapWidget::drawScreen(CFrame &bitmap)
 {
     const int maxRows = bitmap.hei() / FNT_BLOCK_SIZE;
@@ -111,23 +189,10 @@ void CMapWidget::drawScreen(CFrame &bitmap)
 
     for (int i = 0; i < m_map->getSize(); ++i)
     {
-        CFrame *frame{nullptr};
         const auto &entry{(*m_map)[i]};
-        if (entry.type == TYPE_PLAYER)
-        {
-            frame = (*m_player)[PLAYER_FRAME_CYCLE];
-        }
-        else if (entry.type == TYPE_POINTS)
-        {
+        CFrame *frame = fromEntry(entry);
+        if (frame == nullptr) {
             continue;
-        }
-        else if (entry.imageId >= m_tiles->getSize())
-        {
-            continue;
-        }
-        else
-        {
-            frame = (*m_tiles)[entry.imageId];
         }
         const int fcols = frame->len() / FNT_BLOCK_SIZE;
         const int frows = frame->hei() / FNT_BLOCK_SIZE;
@@ -217,7 +282,6 @@ void CMapWidget::preloadAssets()
 
     for (uint i=0; i < sizeof(assets)/sizeof(assets[0]); ++i) {
         asset_t & asset = assets[i];
-       // *(asset.frameset) = new CFrameSet();
         if (file.open(asset.filename, "rb")) {
             qDebug("reading %s", asset.filename);
             if (asset.frameset->extract(file)) {
@@ -242,14 +306,42 @@ void CMapWidget::preloadAssets()
 
 int CMapWidget::at(int x, int y)
 {
-    for (int i = 0; i < m_map->getSize(); ++i)
+    if (!m_map) {
+        return INVALID;
+    }
+    for (int i = m_map->getSize() - 1; i >= 0; --i)
     {
         CActor &entry{(*m_map)[i]};
-        CFrame *frame = entry.type == TYPE_PLAYER ? (*m_player)[0] : (*m_tiles)[entry.imageId];
-        if (entry.x <= x && entry.y <= y
-            && entry.x + frame->len() >= x && entry.y + frame->hei() > y) {
+        CFrame *frame = fromEntry(entry);
+        if (frame == nullptr) {
+            continue;
+        }
+        if ( (x >= entry.x) && (static_cast<uint32_t>(x) < entry.x + frame->len() / FNT_BLOCK_SIZE)
+            && (y >= entry.y) && (static_cast<uint32_t>(y) < entry.y + frame->hei() / FNT_BLOCK_SIZE) ) {
             return i;
         }
     }
     return INVALID;
+}
+
+void CMapWidget::select(int selected)
+{
+    m_selected = selected;
+}
+
+int CMapWidget::selected()
+{
+    return m_selected;
+}
+
+void CMapWidget::translate(int tx, int ty)
+{
+    emit mapSpoiled();
+   // qDebug("tx: %d ty: %d", tx,ty);
+    if (!m_map || m_selected == INVALID) {
+        return ;
+    }
+    CActor &entry{(*m_map)[m_selected]};
+    entry.x += tx;
+    entry.y += ty;
 }

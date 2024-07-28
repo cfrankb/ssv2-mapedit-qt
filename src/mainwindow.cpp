@@ -1,16 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "mapscroll.h"
-
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QSettings>
 #include <QStatusBar>
-
 #include "script.h"
-#include "mapscroll.h"
 #include "mapwidget.h"
+#include "debug.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -29,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_scrollArea, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenu(const QPoint &)));
 
+    CMapWidget *glw = dynamic_cast<CMapWidget *>(m_scrollArea->viewport());
+    connect(glw, SIGNAL(mapSpoiled()), this, SLOT(dirtyMap()));
 }
 
 MainWindow::~MainWindow()
@@ -229,7 +229,6 @@ void MainWindow::setStatus(const QString msg)
     // ui->statusbar->showMessage("msg");
 }
 
-
 void MainWindow::initFileMenu()
 {
     // gray out the open recent `nothin' yet`
@@ -369,7 +368,6 @@ void MainWindow::onLeftClick(int x, int y) {
             return;
         }
 
-        auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
         //CActor * actor = widget->at(x, y);
 
 
@@ -401,3 +399,104 @@ void MainWindow::showContextMenu(const QPoint &)
 {
 
 }
+
+void MainWindow::on_actionExport_Map_Object_List_triggered()
+{
+    CScript *map = m_doc.map();
+    if (!map) {
+        return;
+    }
+    //auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+    debugLevel("debug.log", map);
+ //   void debugLevel(const char *filename, const char *tileset, CScript *script);
+}
+
+void MainWindow::dirtyMap()
+{
+    m_doc.setDirty(true);
+}
+
+
+void MainWindow::on_actionEdit_Cut_triggered()
+{
+    CScript *map = m_doc.map();
+    if (!map) {
+        return;
+    }
+    auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+    int selected = widget->selected();
+    if (selected != INVALID) {
+        m_clipboard = {map->tileset(), selected, CActor{(*map)[selected]}};
+        map->removeAt(selected);
+        widget->select(INVALID);
+        m_doc.setDirty(true);
+    }
+}
+
+
+void MainWindow::on_actionEdit_Copy_triggered()
+{
+    CScript *map = m_doc.map();
+    if (!map) {
+        return;
+    }
+    auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+    int selected = widget->selected();
+    if (selected != INVALID) {
+        m_clipboard = {map->tileset(), selected, CActor{(*map)[selected]}};
+    }
+}
+
+
+void MainWindow::on_actionEdit_Paste_triggered()
+{
+    CScript *map = m_doc.map();
+    if (!map) {
+        return;
+    }
+    auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+    if (m_clipboard.entryID != INVALID
+        && m_clipboard.tileset == map->tileset()) {
+        CActor actor = m_clipboard.selected;
+        actor.x += 1;
+        actor.y += 1;
+        widget->select(map->add(actor));
+        m_doc.setDirty(true);
+    }
+}
+
+
+void MainWindow::on_actionEdit_Delete_triggered()
+{
+    CScript *map = m_doc.map();
+    if (!map) {
+        return;
+    }
+    auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+    int selected = widget->selected();
+    if (selected != INVALID) {
+        map->removeAt(selected);
+        widget->select(INVALID);
+        m_doc.setDirty(true);
+    }
+}
+
+
+void MainWindow::on_actionMap_Previous_triggered()
+{
+    int i = m_doc.currentIndex();
+    if (i > 0) {
+        m_doc.setCurrentIndex(--i);
+        emit mapChanged(m_doc.map());
+    }
+}
+
+void MainWindow::on_actionMap_Next_triggered()
+{
+    int i = m_doc.currentIndex();
+    if (i < m_doc.size() -1) {
+        m_doc.setCurrentIndex(++i);
+        emit mapChanged(m_doc.map());
+    }
+}
+

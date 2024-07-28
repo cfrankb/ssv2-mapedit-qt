@@ -16,7 +16,7 @@ CMapScroll::CMapScroll(QWidget *parent)
     setContextMenuPolicy(Qt::CustomContextMenu);
     setFrameShape(QFrame::NoFrame);
     setAutoFillBackground(false);
-    m_mouse.x = m_mouse.y = -1;
+    m_mouse.x = m_mouse.y = m_mouse.orgX = m_mouse.orgY = -1;
     m_mouse.lButton = m_mouse.rButton = m_mouse.mButton = false;
     update();
 }
@@ -62,11 +62,24 @@ void CMapScroll::mousePressEvent(QMouseEvent *event)
         break;
     }
 
+
+    m_mouse.orgX = m_mouse.x;
+    m_mouse.orgY = m_mouse.y;
     setFocus();
+    int mx, my;
+    topXY(mx, my);
     if (m_mouse.lButton && (m_mouse.x >= 0 && m_mouse.y >= 0))
     {
-        emit leftClickedAt(m_mouse.x, m_mouse.y);
+        CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
+        int id = glw->at(mx + m_mouse.x, my + m_mouse.y);
+        glw->select(id);
+        if (id != INVALID) {
+            //qDebug("item: %d", id);
+        }
+        //emit leftClickedAt(m_mouse.x, m_mouse.y);
     }
+
+
 }
 
 void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
@@ -87,14 +100,26 @@ void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
 
 void CMapScroll::mouseMoveEvent(QMouseEvent *event)
 {
-    m_mouse.x = event->pos().x() / FNT_BLOCK_SIZE + horizontalScrollBar()->value();
-    m_mouse.y = event->pos().y() / FNT_BLOCK_SIZE + verticalScrollBar()->value();
+    m_mouse.x = event->pos().x() / SCREEN_PARTION; //+ horizontalScrollBar()->value();
+    m_mouse.y = event->pos().y() / SCREEN_PARTION; //+ verticalScrollBar()->value();
     QString str{QString("x: %1 y: %2").arg(m_mouse.x).arg(m_mouse.y)};
     emit statusChanged(str);
     if (m_mouse.lButton && (m_mouse.x >= 0 && m_mouse.y >= 0))
     {
-        emit leftClickedAt(m_mouse.x, m_mouse.y);
+       // emit leftClickedAt(m_mouse.x, m_mouse.y);
     }
+
+    CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
+    int selected = glw->selected();
+    if (m_mouse.lButton && (m_mouse.x >= 0 && m_mouse.y >= 0) && selected != INVALID) {
+        int tx =  m_mouse.x - m_mouse.orgX;// : m_mouse.orgX - m_mouse.x;
+        int ty = m_mouse.y - m_mouse.orgY;// : m_mouse.orgY - m_mouse.y;
+        glw->translate(tx,ty);
+    }
+
+    m_mouse.orgX = m_mouse.x;
+    m_mouse.orgY = m_mouse.y;
+
 }
 
 void CMapScroll::wheelEvent(QWheelEvent *event)
@@ -133,18 +158,18 @@ void CMapScroll::wheelEvent(QWheelEvent *event)
     event->accept();
 }
 
-void CMapScroll::newMapSize(int len, int hei)
-{
-    m_mapLen = len;
-    m_mapHei = hei;
-    updateScrollbars();
-    horizontalScrollBar()->setSliderPosition(0);
-    verticalScrollBar()->setSliderPosition(0);
-}
 
 void CMapScroll::newMap(CScript *map)
 {
     CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
     glw->setMap(map);
-    //newMapSize(map->len(), map->hei());
+    horizontalScrollBar()->setSliderPosition(0);
+    verticalScrollBar()->setSliderPosition(0);
+    updateScrollbars();
+}
+
+void CMapScroll::topXY(int &x, int &y)
+{
+    x = horizontalScrollBar()->value();
+    y = verticalScrollBar()->value();
 }

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "mapfile.h"
+#include "actor.h"
 
 class QCloseEvent;
 class CScript;
@@ -27,6 +28,7 @@ signals:
     void mapChanged(CScript *);    // notify of a map change
 
 private slots:
+    void dirtyMap();
     void openRecentFile();
     void loadFile(const QString & filename);
     void setStatus(const QString str);
@@ -36,6 +38,15 @@ private slots:
     void on_actionFile_Save_triggered();
     void on_actionFile_New_File_triggered();
     void on_actionFile_Save_as_triggered();
+    void on_actionExport_Map_Object_List_triggered();
+    void on_actionEdit_Cut_triggered();
+    void on_actionEdit_Copy_triggered();
+    void on_actionEdit_Paste_triggered();
+    void on_actionEdit_Delete_triggered();
+
+    void on_actionMap_Previous_triggered();
+
+    void on_actionMap_Next_triggered();
 
 private:
     enum {
@@ -44,12 +55,19 @@ private:
         INVALID = -1,
     };
     Ui::MainWindow *ui;
-    CMapFile m_doc;
 
+    using clipboard_t = struct {
+        std::string tileset;
+        int entryID;
+        CActor selected;
+    };
+
+    CMapFile m_doc;
     QString m_appName = tr("mapedit");
     QString m_allFilter = tr("SSV2 Maps (*.scrx)");
     QAction *m_recentFileActs[MAX_RECENT_FILES];
     CMapScroll *m_scrollArea;
+    clipboard_t m_clipboard{"", INVALID, CActor()};
 
     virtual void closeEvent(QCloseEvent *event) override;
     bool isDirty();

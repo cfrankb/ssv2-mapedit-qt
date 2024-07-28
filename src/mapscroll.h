@@ -17,7 +17,6 @@ signals:
     void leftClickedAt(int x, int y);
 
 protected slots:
-    void newMapSize(int len, int hei);
     void newMap(CScript *map);
 
 protected:
@@ -29,15 +28,18 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
     virtual void mouseMoveEvent(QMouseEvent *event) override;
     void updateScrollbars();
+    void topXY(int &x, int &y);
 
-    typedef struct
+    using Mouse = struct
     {
+        int orgX;
+        int orgY;
         int x;
         int y;
         bool lButton;
         bool rButton;
         bool mButton;
-    } Mouse;
+    };
     Mouse m_mouse;
 
     int m_mapLen = 256;
@@ -45,8 +47,10 @@ protected:
     enum
     {
         FNT_BLOCK_SIZE = 8,
+        SCREEN_PARTION = 2 * FNT_BLOCK_SIZE,
         GRID_SIZE = 32,
-        STEPS = 4
+        STEPS = 4,
+        INVALID = -1,
     };
 };
 
