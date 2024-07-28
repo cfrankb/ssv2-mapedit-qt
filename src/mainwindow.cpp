@@ -1,0 +1,403 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include "mapscroll.h"
+
+#include <QCloseEvent>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QSettings>
+#include <QStatusBar>
+
+#include "script.h"
+#include "mapscroll.h"
+#include "mapwidget.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+    initFileMenu();
+    setWindowTitle(tr("ssv2 MapEditor"));
+    setStatus("blah");
+    m_scrollArea = new CMapScroll;
+    setCentralWidget(m_scrollArea);
+
+    connect(m_scrollArea, SIGNAL(statusChanged(QString)), this, SLOT(setStatus(QString)));
+    connect(m_scrollArea, SIGNAL(leftClickedAt(int, int)), this, SLOT(onLeftClick(int, int)));
+    connect(this, SIGNAL(mapChanged(CScript *)), m_scrollArea, SLOT(newMap(CScript *)));
+    connect(m_scrollArea, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showContextMenu(const QPoint &)));
+
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (maybeSave())
+    {
+        event->accept();
+    }
+    else
+    {
+        event->ignore();
+        return;
+    }
+}
+
+bool MainWindow::isDirty()
+{
+    return m_doc.isDirty();
+}
+
+bool MainWindow::maybeSave()
+{
+    if (isDirty())
+    {
+        QMessageBox::StandardButton ret = QMessageBox::warning(
+            this,
+            m_appName,
+            tr("The document has been modified.\n"
+               "Do you want to save your changes?"),
+            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+        if (ret == QMessageBox::Save)
+            return save();
+        else if (ret == QMessageBox::Cancel)
+            return false;
+    }
+    return true;
+}
+
+void MainWindow::open(QString fileName)
+{
+    if (maybeSave())
+    {
+        if (fileName.isEmpty())
+        {
+            QStringList filters;
+            filters.append(m_allFilter);
+            QFileDialog *dlg = new QFileDialog(this, tr("Open"), "", m_allFilter);
+            dlg->setAcceptMode(QFileDialog::AcceptOpen);
+            dlg->setFileMode(QFileDialog::ExistingFile);
+            dlg->selectFile(m_doc.filename());
+            dlg->setNameFilters(filters);
+            if (dlg->exec())
+            {
+                QStringList fileNames = dlg->selectedFiles();
+                if (fileNames.count() > 0)
+                {
+                    fileName = fileNames[0];
+                }
+            }
+            delete dlg;
+        }
+        loadFile(fileName);
+    }
+    updateMenus();
+}
+
+void MainWindow::loadFile(const QString &fileName)
+{
+    if (!fileName.isEmpty())
+    {
+        QString oldFileName = m_doc.filename();
+        m_doc.setFilename(fileName);
+        if (m_doc.read())
+        {
+            qDebug("size: %d", m_doc.size());
+        }
+        else
+        {
+            warningMessage(tr("error:\n") + m_doc.lastError());
+            m_doc.setFilename(oldFileName);
+            // update fileList
+            QSettings settings;
+            QStringList files = settings.value("recentFileList").toStringList();
+            files.removeAll(fileName);
+            settings.setValue("recentFileList", files);
+        }
+        updateTitle();
+        updateRecentFileActions();
+        reloadRecentFileActions();
+        emit mapChanged(m_doc.map());
+    }
+}
+
+bool MainWindow::save()
+{
+    QString oldFileName = m_doc.filename();
+    if (m_doc.isUntitled() || m_doc.isWrongExt())
+    {
+        if (!saveAs())
+            return false;
+    }
+
+    if (!m_doc.write() || !updateTitle())
+    {
+        warningMessage(tr("Can't write file"));
+        m_doc.setFilename(oldFileName);
+        return false;
+    }
+
+    updateRecentFileActions();
+    reloadRecentFileActions();
+    return true;
+}
+
+bool MainWindow::saveAs()
+{
+    bool result = false;
+    QStringList filters;
+    QString suffix = "scrx";
+    QString fileName = "";
+
+    QFileDialog *dlg = new QFileDialog(this, tr("Save as"), "", m_allFilter);
+    dlg->setAcceptMode(QFileDialog::AcceptSave);
+
+    dlg->setNameFilters(filters);
+    dlg->setAcceptMode(QFileDialog::AcceptSave);
+    dlg->setDefaultSuffix(suffix);
+    dlg->selectFile(m_doc.filename());
+    if (dlg->exec())
+    {
+        QStringList fileNames = dlg->selectedFiles();
+        if (fileNames.count() > 0)
+        {
+            fileName = fileNames[0];
+        }
+    }
+
+    if (!fileName.isEmpty())
+    {
+        m_doc.setFilename(fileName);
+        result = m_doc.write();
+    }
+
+    updateTitle();
+    delete dlg;
+    return result;
+}
+
+void MainWindow::warningMessage(const QString & message)
+{
+    QMessageBox::warning(this, m_appName, message);
+}
+
+void MainWindow::setDocument(const QString & fileName)
+{
+    m_doc.setFilename(fileName);
+    m_doc.read();
+}
+
+bool MainWindow::updateTitle()
+{
+    QString file;
+    if (m_doc.filename().isEmpty())
+    {
+        file = tr("untitled");
+    }
+    else
+    {
+        file = QFileInfo(m_doc.filename()).fileName();
+    }
+    m_doc.setDirty(false);
+    setWindowTitle(tr("%1[*] - %2").arg(file, m_appName));
+    return true;
+}
+
+void MainWindow::updateMenus()
+{
+    int index = m_doc.currentIndex();
+    /*
+    ui->actionEdit_Previous_Map->setEnabled(index > 0);
+    ui->actionEdit_Next_Map->setEnabled(index < m_doc.size() - 1);
+    ui->actionEdit_Delete_Map->setEnabled(m_doc.size() > 1);
+    ui->actionEdit_Move_Map->setEnabled(m_doc.size() > 1);
+    ui->actionEdit_Goto_Map->setEnabled(m_doc.size() > 1);
+    ui->actionEdit_First_Map->setEnabled(index > 0);
+    ui->actionEdit_Last_Map->setEnabled(index < m_doc.size() - 1);
+*/
+}
+
+void MainWindow::setStatus(const QString msg)
+{
+    ui->statusbar->showMessage(msg);
+    // ui->statusbar->showMessage("msg");
+}
+
+
+void MainWindow::initFileMenu()
+{
+    // gray out the open recent `nothin' yet`
+    ui->actionNothing_yet->setEnabled(false);
+    for (int i = 0; i < MAX_RECENT_FILES; i++)
+    {
+        m_recentFileActs[i] = new QAction(this);
+        m_recentFileActs[i]->setVisible(false);
+        ui->menuRecent_Maps->addAction(m_recentFileActs[i]);
+        connect(m_recentFileActs[i], SIGNAL(triggered()),
+                this, SLOT(openRecentFile()));
+    }
+    reloadRecentFileActions();
+    // connect the File->Quit to the close app event
+    connect(ui->actionFile_Exit, SIGNAL(triggered()), this, SLOT(close()));
+    ui->actionFile_Exit->setMenuRole(QAction::QuitRole);
+}
+
+void MainWindow::reloadRecentFileActions()
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    const int numRecentFiles = qMin(files.size(), static_cast<int>(MAX_RECENT_FILES));
+    for (int i = 0; i < numRecentFiles; ++i)
+    {
+        QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
+        m_recentFileActs[i]->setText(text);
+        m_recentFileActs[i]->setData(files[i]);
+        m_recentFileActs[i]->setVisible(true);
+        m_recentFileActs[i]->setStatusTip(files[i]);
+    }
+    ui->actionNothing_yet->setVisible(numRecentFiles == 0);
+}
+
+void MainWindow::updateRecentFileActions()
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    QString fileName = m_doc.filename();
+    files.removeAll(fileName);
+    if (!fileName.isEmpty())
+    {
+        files.prepend(fileName);
+        while (files.size() > MAX_RECENT_FILES)
+            files.removeLast();
+    }
+    settings.setValue("recentFileList", files);
+}
+
+void MainWindow::openRecentFile()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+    {
+        open(action->data().toString());
+    }
+    updateMenus();
+}
+
+void MainWindow::initToolBar()
+{
+    /*
+    ui->toolBar->setIconSize(QSize(16, 16));
+    ui->toolBar->addAction(ui->actionFile_New_File);
+    ui->toolBar->addAction(ui->actionFile_Open);
+    ui->toolBar->addAction(ui->actionFile_Save);
+    ui->toolBar->addSeparator();
+    ui->toolBar->addAction(ui->actionEdit_ResizeMap);
+    ui->toolBar->addAction(ui->actionEdit_Previous_Map);
+    ui->toolBar->addAction(ui->actionEdit_Next_Map);
+    ui->toolBar->addAction(ui->actionEdit_First_Map);
+    ui->toolBar->addAction(ui->actionEdit_Last_Map);
+    ui->toolBar->addSeparator();
+    ui->toolBar->addAction(ui->actionEdit_Add_Map);
+    // ui->toolBar->addAction(ui->actionClear_Map);
+    ui->toolBar->addAction(ui->actionEdit_Delete_Map);
+    ui->toolBar->addSeparator();
+    ui->toolBar->addAction(ui->actionTools_Paint);
+    ui->toolBar->addAction(ui->actionTools_Erase);
+    ui->toolBar->addAction(ui->actionTools_Select);
+
+    m_toolGroup = new QActionGroup(this);
+    m_toolGroup->addAction(ui->actionTools_Paint);
+    m_toolGroup->addAction(ui->actionTools_Erase);
+    m_toolGroup->addAction(ui->actionTools_Select);
+    m_toolGroup->setExclusive(true);
+    ui->actionTools_Paint->setChecked(true);
+    ui->actionTools_Paint->setData(TOOL_PAINT);
+    ui->actionTools_Erase->setData(TOOL_ERASE);
+    ui->actionTools_Select->setData(TOOL_SELECT);
+
+    QAction *actionToolBar = ui->toolBar->toggleViewAction();
+    actionToolBar->setText(tr("ToolBar"));
+    actionToolBar->setStatusTip(tr("Show or hide toolbar"));
+    ui->menuView->addAction(actionToolBar);
+*/
+}
+
+void MainWindow::on_actionFile_Open_triggered()
+{
+    open("");
+}
+
+
+void MainWindow::on_actionFile_Save_triggered()
+{
+    save();
+}
+
+void MainWindow::on_actionFile_New_File_triggered()
+{
+    if (maybeSave())
+    {
+        m_doc.setFilename("");
+        m_doc.forget();
+        CScript *script = new CScript();
+        m_doc.add(script);
+        updateTitle();
+        emit mapChanged(m_doc.map());
+        updateMenus();
+    }
+}
+
+
+void MainWindow::on_actionFile_Save_as_triggered()
+{
+    saveAs();
+    updateRecentFileActions();
+    reloadRecentFileActions();
+}
+
+void MainWindow::onLeftClick(int x, int y) {
+    if ((x >= 0) && (y >= 0) && (x < MAX_AXIS) && (y < MAX_AXIS))
+    {
+        CScript *map = m_doc.map();
+        if (!map) {
+            return;
+        }
+
+        auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+        //CActor * actor = widget->at(x, y);
+
+
+        /*
+        const uint8_t tile = m_doc.map()->at(x, y);
+        uint8_t newTileId = tile;
+        switch (currentTool())
+        {
+        case TOOL_PAINT:
+            newTileId = m_currTile;
+            break;
+        case TOOL_ERASE:
+            newTileId = 0;
+            break;
+        case TOOL_SELECT:
+            m_currTile = m_doc.map()->at(x, y);
+            emit newTile(m_currTile);
+        }
+
+        if (newTileId != tile)
+        {
+            m_doc.map()->at(x, y) = newTileId;
+            m_doc.setDirty(true);
+        }*/
+    }
+}
+
+void MainWindow::showContextMenu(const QPoint &)
+{
+
+}

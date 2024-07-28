@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFIle">
+    <property name="title">
+     <string>FIle</string>
+    </property>
+    <widget class="QMenu" name="menuRecent_Maps">
+     <property name="title">
+      <string>Recent files</string>
+     </property>
+     <addaction name="actionNothing_yet"/>
+    </widget>
+    <addaction name="actionFile_New_File"/>
+    <addaction name="actionFile_Open"/>
+    <addaction name="menuRecent_Maps"/>
+    <addaction name="actionFile_Save"/>
+    <addaction name="actionFile_Save_as"/>
+    <addaction name="separator"/>
+    <addaction name="actionFile_Exit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHelp_About"/>
+    <addaction name="actionHelp_About_Qt"/>
+   </widget>
+   <addaction name="menuFIle"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionFile_Open">
+   <property name="text">
+    <string>Open File</string>
+   </property>
+   <property name="statusTip">
+    <string>Open a file</string>
+   </property>
+  </action>
+  <action name="actionFile_Save">
+   <property name="text">
+    <string>Save File</string>
+   </property>
+   <property name="statusTip">
+    <string>Save file</string>
+   </property>
+  </action>
+  <action name="actionNothing_yet">
+   <property name="text">
+    <string>Nothing Yet</string>
+   </property>
+  </action>
+  <action name="actionFile_New_File">
+   <property name="text">
+    <string>New File</string>
+   </property>
+   <property name="statusTip">
+    <string>Create a new file</string>
+   </property>
+  </action>
+  <action name="actionFile_Exit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionFile_Save_as">
+   <property name="text">
+    <string>SaveAs File</string>
+   </property>
+   <property name="statusTip">
+    <string>Save file under a different name</string>
+   </property>
+  </action>
+  <action name="actionHelp_About">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionHelp_About_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,68 @@
+[images]
+0000 _The Vlamits II: (C) 1995 Francois Blanchette 
+0001 \Champs de force
+0002 ±Diamant 25pts
+0003 Bouclier magique
+0004 Orb
+0005 Oxygen bottle
+0006 Coffre 50pts
+0007 Colier 15pts
+0008 Fleur CS
+0009 Algue
+000a Boite mystere
+000b PowerOff
+000c PowerOn
+000d Echelle
+000e Corde
+000f Pond
+0010 Brique
+0011 Mur _A
+0012 Mur _B
+0013 Mur _C
+0014 Mur _D
+0015 Mur _E
+0016 Mur _F
+0017 Mur _G
+0018 Mur _H
+0019 Eau de surface 
+001a Eau de surface 2
+001b Eau profonde
+001c Lave 1
+001d Lave 2
+001e Lava DN
+001f Slime 1
+0020 Slime 2
+0021 Slime DN
+0022 Flying platform UP/DN
+0023 Flying platform LF/RG
+0024 Left fish
+0025 Right fish
+0026 Deadly plant _1a
+0027 Deadly plant _1b
+0028 DN Water 2x2
+0029 DN Water 4x4
+002a Statue
+002b Tombe
+002c Clef grise
+002d Porte Grise
+002e Clef coeur
+002f Porte coeur
+0030 Clef jaune
+0031 Porte jaune
+0032 Clef eau
+0033 Porte eau
+0034 VCrea1
+0035 VCrea2
+0036 Deadly plant _1a
+0037 Deadly plant _1b
+0038 LFISH
+0039 RFISH
+003a Rock
+003b Rock2
+003c Rock3
+003d !STOP
+003e _Bloquer
+
+[types]
+00 d0 000d # TASK_NONE        TYPE_LADDER          Echelle
+00 f0 003d # TASK_NONE        TYPE_STOPCLASS       !STOP
