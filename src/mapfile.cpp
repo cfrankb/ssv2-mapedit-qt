@@ -4,7 +4,7 @@ CMapFile::CMapFile() : CScriptArch()
 {
     //m_scripts[0] = new CScript();
     //m_scripts = nullptr;
-    m_size = 1;
+    m_size = 0;
     m_currIndex = 0;
 }
 

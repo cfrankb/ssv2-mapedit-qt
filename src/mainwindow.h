@@ -53,6 +53,10 @@ private slots:
     void on_actionMap_Go_to_triggered();
     void on_actionMap_Rename_triggered();
     void on_actionMap_Move_triggered();
+    void shiftUp();
+    void shiftDown();
+    void shiftLeft();
+    void shiftRight();
 
 private:
     enum {
@@ -89,6 +93,7 @@ private:
     void reloadRecentFileActions();
     void initToolBar();
     void updateRecentFileActions();
+    void initMapShortcuts();
 
 };
 #endif // MAINWINDOW_H

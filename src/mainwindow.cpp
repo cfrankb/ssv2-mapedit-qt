@@ -11,6 +11,7 @@
 #include "mapwidget.h"
 #include "dlgselect.h"
 #include "debug.h"
+#include <QShortcut>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     initFileMenu();
     setWindowTitle(tr("ssv2 MapEditor"));
-    setStatus("blah");
     m_scrollArea = new CMapScroll;
     setCentralWidget(m_scrollArea);
 
@@ -31,6 +31,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     CMapWidget *glw = dynamic_cast<CMapWidget *>(m_scrollArea->viewport());
     connect(glw, SIGNAL(mapSpoiled()), this, SLOT(dirtyMap()));
+
+    initToolBar();
+    initMapShortcuts();
+    updateMenus();
 }
 
 MainWindow::~MainWindow()
@@ -290,22 +294,21 @@ void MainWindow::openRecentFile()
 
 void MainWindow::initToolBar()
 {
-    /*
+
     ui->toolBar->setIconSize(QSize(16, 16));
     ui->toolBar->addAction(ui->actionFile_New_File);
     ui->toolBar->addAction(ui->actionFile_Open);
     ui->toolBar->addAction(ui->actionFile_Save);
     ui->toolBar->addSeparator();
-    ui->toolBar->addAction(ui->actionEdit_ResizeMap);
-    ui->toolBar->addAction(ui->actionEdit_Previous_Map);
-    ui->toolBar->addAction(ui->actionEdit_Next_Map);
-    ui->toolBar->addAction(ui->actionEdit_First_Map);
-    ui->toolBar->addAction(ui->actionEdit_Last_Map);
+    ui->toolBar->addAction(ui->actionMap_Previous);
+    ui->toolBar->addAction(ui->actionMap_Next);
+    ui->toolBar->addAction(ui->actionMap_First);
+    ui->toolBar->addAction(ui->actionMap_Last);
     ui->toolBar->addSeparator();
-    ui->toolBar->addAction(ui->actionEdit_Add_Map);
-    // ui->toolBar->addAction(ui->actionClear_Map);
-    ui->toolBar->addAction(ui->actionEdit_Delete_Map);
-    ui->toolBar->addSeparator();
+    ui->toolBar->addAction(ui->actionMap_Add_new);
+    ui->toolBar->addAction(ui->actionMap_Delete);
+
+    /*ui->toolBar->addSeparator();
     ui->toolBar->addAction(ui->actionTools_Paint);
     ui->toolBar->addAction(ui->actionTools_Erase);
     ui->toolBar->addAction(ui->actionTools_Select);
@@ -318,13 +321,11 @@ void MainWindow::initToolBar()
     ui->actionTools_Paint->setChecked(true);
     ui->actionTools_Paint->setData(TOOL_PAINT);
     ui->actionTools_Erase->setData(TOOL_ERASE);
-    ui->actionTools_Select->setData(TOOL_SELECT);
+    ui->actionTools_Select->setData(TOOL_SELECT);*/
 
     QAction *actionToolBar = ui->toolBar->toggleViewAction();
     actionToolBar->setText(tr("ToolBar"));
     actionToolBar->setStatusTip(tr("Show or hide toolbar"));
-    ui->menuView->addAction(actionToolBar);
-*/
 }
 
 void MainWindow::on_actionFile_Open_triggered()
@@ -367,8 +368,6 @@ void MainWindow::onLeftClick(int x, int y) {
         if (!map) {
             return;
         }
-
-        //CActor * actor = widget->at(x, y);
 
 
         /*
@@ -600,7 +599,47 @@ void MainWindow::on_actionMap_Move_triggered()
             m_doc.setCurrentIndex(i);
             emit mapChanged(m_doc.map());
             updateMenus();
+            m_doc.setDirty(true);
         }
     }
 }
 
+void MainWindow::initMapShortcuts()
+{
+    new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Up)), this, SLOT(shiftUp()));
+    new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Down)), this, SLOT(shiftDown()));
+    new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Left)), this, SLOT(shiftLeft()));
+    new QShortcut(QKeySequence(QKeyCombination(Qt::CTRL, Qt::Key_Right)), this, SLOT(shiftRight()));
+}
+
+void MainWindow::shiftUp()
+{
+    if (m_doc.size() != 0) {
+        m_doc.map()->shift(CScript::UP);
+        m_doc.setDirty(true);
+    }
+}
+
+void MainWindow::shiftDown()
+{
+    if (m_doc.size() != 0) {
+        m_doc.map()->shift(CScript::DOWN);
+        m_doc.setDirty(true);
+    }
+}
+
+void MainWindow::shiftLeft()
+{
+    if (m_doc.size() != 0) {
+        m_doc.map()->shift(CScript::LEFT);
+        m_doc.setDirty(true);
+    }
+}
+
+void MainWindow::shiftRight()
+{
+    if (m_doc.size() != 0) {
+        m_doc.map()->shift(CScript::RIGHT);
+        m_doc.setDirty(true);
+    }
+}

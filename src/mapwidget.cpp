@@ -29,7 +29,7 @@ CMapWidget::~CMapWidget()
 
 void CMapWidget::setMap(CScript *pMap)
 {
-    qDebug("setMap");
+    //qDebug("setMap");
     m_selected = INVALID;
     m_map = pMap;
     if (m_map->tileset() != m_tileset) {
@@ -67,11 +67,7 @@ void CMapWidget::paintEvent(QPaintEvent *)
     CMapScroll *scr = static_cast<CMapScroll*>(parent());
     const int mx = scr->horizontalScrollBar()->value();
     const int my = scr->verticalScrollBar()->value();
-    // animate tiles
     ++m_ticks;
-    //if (m_animate && m_ticks % 3 == 0) {
-     //   m_animator->animate();
-   // }
 
     // draw screen
     CFrame bitmap(width, height);
@@ -337,7 +333,6 @@ int CMapWidget::selected()
 void CMapWidget::translate(int tx, int ty)
 {
     emit mapSpoiled();
-   // qDebug("tx: %d ty: %d", tx,ty);
     if (!m_map || m_selected == INVALID) {
         return ;
     }

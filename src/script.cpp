@@ -204,7 +204,7 @@ void CScript::removeAt(int i)
     CActor *s = m_script.get();
     for (uint32_t j = i; j < m_size - 1; ++j)
     {
-        s[i] = s[i + 1];
+        s[j] = s[j + 1];
     }
     --m_size;
 }
@@ -260,3 +260,26 @@ void CScript::sort()
     }
     m_script.swap(tmp);
 }
+
+void CScript::shift(int aim)
+{
+    CActor *s = m_script.get();
+    for (uint32_t i = 0; i < m_size; ++i)
+    {
+        CActor &entry{s[i]};
+        switch (aim) {
+        case UP:
+            --entry.y;
+            break;
+        case DOWN:
+            ++entry.y;
+            break;
+        case LEFT:
+            --entry.x;
+            break;
+        case RIGHT:
+            ++entry.x;
+        }
+    }
+}
+

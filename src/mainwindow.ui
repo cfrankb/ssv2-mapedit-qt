@@ -88,7 +88,22 @@
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
   <action name="actionFile_Open">
+   <property name="icon">
+    <iconset theme="document-open" resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/open.gif</normaloff>:/data/icons/open.gif</iconset>
+   </property>
    <property name="text">
     <string>Open File</string>
    </property>
@@ -97,6 +112,10 @@
    </property>
   </action>
   <action name="actionFile_Save">
+   <property name="icon">
+    <iconset theme="document-save" resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/save.gif</normaloff>:/data/icons/save.gif</iconset>
+   </property>
    <property name="text">
     <string>Save File</string>
    </property>
@@ -110,6 +129,10 @@
    </property>
   </action>
   <action name="actionFile_New_File">
+   <property name="icon">
+    <iconset theme="document-new" resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/new.gif</normaloff>:/data/icons/new.gif</iconset>
+   </property>
    <property name="text">
     <string>New File</string>
    </property>
@@ -118,11 +141,17 @@
    </property>
   </action>
   <action name="actionFile_Exit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
   </action>
   <action name="actionFile_Save_as">
+   <property name="icon">
+    <iconset theme="document-save-as"/>
+   </property>
    <property name="text">
     <string>Save As File</string>
    </property>
@@ -131,6 +160,9 @@
    </property>
   </action>
   <action name="actionHelp_About">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>About</string>
    </property>
@@ -146,6 +178,9 @@
    </property>
   </action>
   <action name="actionEdit_Cut">
+   <property name="icon">
+    <iconset theme="edit-cut"/>
+   </property>
    <property name="text">
     <string>Cut</string>
    </property>
@@ -154,6 +189,9 @@
    </property>
   </action>
   <action name="actionEdit_Copy">
+   <property name="icon">
+    <iconset theme="edit-copy"/>
+   </property>
    <property name="text">
     <string>Copy</string>
    </property>
@@ -162,6 +200,9 @@
    </property>
   </action>
   <action name="actionEdit_Paste">
+   <property name="icon">
+    <iconset theme="edit-paste"/>
+   </property>
    <property name="text">
     <string>Paste</string>
    </property>
@@ -170,6 +211,9 @@
    </property>
   </action>
   <action name="actionEdit_Delete">
+   <property name="icon">
+    <iconset theme="edit-delete"/>
+   </property>
    <property name="text">
     <string>Delete</string>
    </property>
@@ -178,6 +222,10 @@
    </property>
   </action>
   <action name="actionMap_Previous">
+   <property name="icon">
+    <iconset resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/prev.gif</normaloff>:/data/icons/prev.gif</iconset>
+   </property>
    <property name="text">
     <string>Previous Map</string>
    </property>
@@ -186,6 +234,10 @@
    </property>
   </action>
   <action name="actionMap_Next">
+   <property name="icon">
+    <iconset resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/next.gif</normaloff>:/data/icons/next.gif</iconset>
+   </property>
    <property name="text">
     <string>Next Map</string>
    </property>
@@ -194,31 +246,54 @@
    </property>
   </action>
   <action name="actionMap_First">
+   <property name="icon">
+    <iconset resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/go-first.png</normaloff>:/data/icons/go-first.png</iconset>
+   </property>
    <property name="text">
     <string>First Map</string>
    </property>
   </action>
   <action name="actionMap_Last">
+   <property name="icon">
+    <iconset resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/go-last.png</normaloff>:/data/icons/go-last.png</iconset>
+   </property>
    <property name="text">
     <string>Last Map</string>
    </property>
   </action>
   <action name="actionMap_Add_new">
+   <property name="icon">
+    <iconset resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/plus.png</normaloff>:/data/icons/plus.png</iconset>
+   </property>
    <property name="text">
     <string>Add new map</string>
    </property>
   </action>
   <action name="actionMap_Insert">
+   <property name="icon">
+    <iconset theme="insert-image"/>
+   </property>
    <property name="text">
     <string>Insert Map</string>
    </property>
   </action>
   <action name="actionMap_Delete">
+   <property name="icon">
+    <iconset resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/minus.png</normaloff>:/data/icons/minus.png</iconset>
+   </property>
    <property name="text">
     <string>Delete Map</string>
    </property>
   </action>
   <action name="actionMap_Go_to">
+   <property name="icon">
+    <iconset resource="ssv2-mapedit-qt.qrc">
+     <normaloff>:/data/icons/current.gif</normaloff>:/data/icons/current.gif</iconset>
+   </property>
    <property name="text">
     <string>Go to Map</string>
    </property>
@@ -234,6 +309,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="ssv2-mapedit-qt.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -31,6 +31,10 @@ class CScript
 public:
     enum
     {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
         NOT_FOUND = -1
     };
 
@@ -46,6 +50,8 @@ public:
     void setName(const std::string &name);
     std::string tileset() const;
     void setTileSet(const std::string &tileset);
+    void shift(int aim);
+
     constexpr inline int getSize() const
     {
         return m_size;
