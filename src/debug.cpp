@@ -312,8 +312,8 @@ void debugLevel(const char *filename,  CScript *script)
         data[size] = 0;
         file.read(data, size);
         file.close();
-        char *p = strstr(data, "\n");
-        p = p ? ++p: nullptr;
+        char *o = strstr(data, "\n");
+        char *p = o ? ++o: nullptr;
 
         uint16_t i = 0;
         while (p && p[0]!='[' && *p)

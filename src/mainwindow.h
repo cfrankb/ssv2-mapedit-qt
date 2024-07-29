@@ -43,14 +43,20 @@ private slots:
     void on_actionEdit_Copy_triggered();
     void on_actionEdit_Paste_triggered();
     void on_actionEdit_Delete_triggered();
-
     void on_actionMap_Previous_triggered();
-
     void on_actionMap_Next_triggered();
+    void on_actionMap_First_triggered();
+    void on_actionMap_Last_triggered();
+    void on_actionMap_Add_new_triggered();
+    void on_actionMap_Insert_triggered();
+    void on_actionMap_Delete_triggered();
+    void on_actionMap_Go_to_triggered();
+    void on_actionMap_Rename_triggered();
+    void on_actionMap_Move_triggered();
 
 private:
     enum {
-        MAX_RECENT_FILES =4,
+        MAX_RECENT_FILES = 8,
         MAX_AXIS = 256,
         INVALID = -1,
     };

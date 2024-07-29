@@ -272,3 +272,23 @@ const char *CScriptArch::lastError()
     return m_lastError.c_str();
 }
 
+void CScriptArch::insertAt(int i, CScript *script)
+{
+    if (m_size == m_max)
+    {
+        m_max += GROW_BY;
+        std::unique_ptr<CScript *[]> tmp = std::make_unique<CScript *[]>(m_max);
+        for (uint32_t i = 0; i < m_size; ++i)
+        {
+            tmp[i] = m_scripts[i];
+        }
+        m_scripts.swap(tmp);
+    }
+
+    for (int j=m_size; j > i; --j) {
+        m_scripts[j] = m_scripts[j-1];
+    }
+    m_scripts[i] = script;
+    ++m_size;
+}
+

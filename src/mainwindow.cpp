@@ -6,8 +6,10 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QStatusBar>
+#include <QInputDialog>
 #include "script.h"
 #include "mapwidget.h"
+#include "dlgselect.h"
 #include "debug.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -212,21 +214,19 @@ bool MainWindow::updateTitle()
 void MainWindow::updateMenus()
 {
     int index = m_doc.currentIndex();
-    /*
-    ui->actionEdit_Previous_Map->setEnabled(index > 0);
-    ui->actionEdit_Next_Map->setEnabled(index < m_doc.size() - 1);
-    ui->actionEdit_Delete_Map->setEnabled(m_doc.size() > 1);
-    ui->actionEdit_Move_Map->setEnabled(m_doc.size() > 1);
-    ui->actionEdit_Goto_Map->setEnabled(m_doc.size() > 1);
-    ui->actionEdit_First_Map->setEnabled(index > 0);
-    ui->actionEdit_Last_Map->setEnabled(index < m_doc.size() - 1);
-*/
+    ui->actionMap_Previous->setEnabled(index > 0);
+    ui->actionMap_Next->setEnabled(index < m_doc.size() - 1);
+    ui->actionMap_Delete->setEnabled(m_doc.size() > 1);
+    ui->actionMap_Move->setEnabled(m_doc.size() > 1);
+    ui->actionMap_Go_to->setEnabled(m_doc.size() > 1);
+    ui->actionMap_First->setEnabled(index > 0);
+    ui->actionMap_Last->setEnabled(index < m_doc.size() - 1);
+    ui->actionMap_Rename->setEnabled(m_doc.size() != 0);
 }
 
 void MainWindow::setStatus(const QString msg)
 {
     ui->statusbar->showMessage(msg);
-    // ui->statusbar->showMessage("msg");
 }
 
 void MainWindow::initFileMenu()
@@ -406,9 +406,7 @@ void MainWindow::on_actionExport_Map_Object_List_triggered()
     if (!map) {
         return;
     }
-    //auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
     debugLevel("debug.log", map);
- //   void debugLevel(const char *filename, const char *tileset, CScript *script);
 }
 
 void MainWindow::dirtyMap()
@@ -479,6 +477,7 @@ void MainWindow::on_actionEdit_Delete_triggered()
         widget->select(INVALID);
         m_doc.setDirty(true);
     }
+    updateMenus();
 }
 
 
@@ -489,6 +488,7 @@ void MainWindow::on_actionMap_Previous_triggered()
         m_doc.setCurrentIndex(--i);
         emit mapChanged(m_doc.map());
     }
+    updateMenus();
 }
 
 void MainWindow::on_actionMap_Next_triggered()
@@ -497,6 +497,110 @@ void MainWindow::on_actionMap_Next_triggered()
     if (i < m_doc.size() -1) {
         m_doc.setCurrentIndex(++i);
         emit mapChanged(m_doc.map());
+    }
+    updateMenus();
+}
+
+
+void MainWindow::on_actionMap_First_triggered()
+{
+    int i = m_doc.currentIndex();
+    if (i > 0) {
+        m_doc.setCurrentIndex(0);
+        emit mapChanged(m_doc.map());
+    }
+    updateMenus();
+}
+
+
+void MainWindow::on_actionMap_Last_triggered()
+{
+    int i = m_doc.currentIndex();
+    if (i < m_doc.size() -1) {
+        m_doc.setCurrentIndex(m_doc.size() -1);
+        emit mapChanged(m_doc.map());
+    }
+    updateMenus();
+}
+
+
+void MainWindow::on_actionMap_Add_new_triggered()
+{
+    m_doc.add(new CScript());
+    m_doc.setCurrentIndex(m_doc.size() -1);
+    m_doc.setDirty(true);
+    emit mapChanged(m_doc.map());
+    updateMenus();
+}
+
+
+void MainWindow::on_actionMap_Insert_triggered()
+{
+}
+
+
+void MainWindow::on_actionMap_Delete_triggered()
+{
+    if (m_doc.size() != 0) {
+        int i = m_doc.currentIndex();
+        CScript *script = m_doc.removeAt(i);
+        delete script;
+        m_doc.setDirty(true);
+        emit mapChanged(m_doc.map());
+    }
+    updateMenus();
+}
+
+
+void MainWindow::on_actionMap_Go_to_triggered()
+{
+    int currIndex = m_doc.currentIndex();
+    if (m_doc.size() != 0) {
+        CDlgSelect dlg;
+        dlg.setWindowTitle(tr("Go to Map ..."));
+        dlg.init(tr("Goto Map"), &m_doc);
+        if (dlg.exec() == QDialog::Accepted && dlg.index() != currIndex)
+        {
+            int i = dlg.index();
+            m_doc.setCurrentIndex(i);
+            emit mapChanged(m_doc.map());
+            updateMenus();
+        }
+    }
+}
+
+
+void MainWindow::on_actionMap_Rename_triggered()
+{
+    if (m_doc.size() != 0) {
+        bool ok;
+        QString text = QInputDialog::getText(this, tr("Rename Map"),
+                                             tr("Name:"), QLineEdit::Normal,
+                                             m_doc.map()->name().c_str(), &ok);
+        text = text.trimmed().mid(0, 254);
+        if (ok && strcmp(text.toLatin1(), m_doc.map()->name().c_str()) != 0)
+        {
+            m_doc.map()->setName(text.toLatin1().toStdString());
+            m_doc.setDirty(true);
+        }
+    }
+}
+
+
+void MainWindow::on_actionMap_Move_triggered()
+{
+    int currIndex = m_doc.currentIndex();
+    if (m_doc.size() != 0) {
+        CDlgSelect dlg;
+        dlg.setWindowTitle(tr("Go to Map ..."));
+        dlg.init(tr("Select map"), &m_doc);
+        if (dlg.exec() == QDialog::Accepted && dlg.index() != currIndex)
+        {
+            int i = dlg.index();
+            m_doc.setCurrentIndex(i);
+            emit mapChanged(m_doc.map());
+            updateMenus();
+        }
     }
 }
 

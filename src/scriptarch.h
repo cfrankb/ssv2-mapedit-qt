@@ -39,10 +39,11 @@ public:
     void forget();
     int size() const;
     inline CScript *operator[](int i);
-    inline CScript *at(int i);
+    CScript *at(int i);
     static bool indexFromFile(const char *filename, uint32_t *&index, uint32_t &size);
     static bool indexFromMemory(const uint8_t *data, uint32_t *&index, uint32_t &size);
     CScript *removeAt(int i);
+    void insertAt(int i, CScript *script);
     const char *lastError();
 
 private:

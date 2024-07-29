@@ -71,6 +71,16 @@
     </property>
     <addaction name="actionMap_Previous"/>
     <addaction name="actionMap_Next"/>
+    <addaction name="actionMap_First"/>
+    <addaction name="actionMap_Last"/>
+    <addaction name="actionMap_Move"/>
+    <addaction name="actionMap_Go_to"/>
+    <addaction name="separator"/>
+    <addaction name="actionMap_Rename"/>
+    <addaction name="actionMap_Add_new"/>
+    <addaction name="actionMap_Insert"/>
+    <addaction name="separator"/>
+    <addaction name="actionMap_Delete"/>
    </widget>
    <addaction name="menuFIle"/>
    <addaction name="menuEdit"/>
@@ -114,7 +124,7 @@
   </action>
   <action name="actionFile_Save_as">
    <property name="text">
-    <string>SaveAs File</string>
+    <string>Save As File</string>
    </property>
    <property name="statusTip">
     <string>Save file under a different name</string>
@@ -171,10 +181,56 @@
    <property name="text">
     <string>Previous Map</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+PgUp</string>
+   </property>
   </action>
   <action name="actionMap_Next">
    <property name="text">
     <string>Next Map</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+PgDown</string>
+   </property>
+  </action>
+  <action name="actionMap_First">
+   <property name="text">
+    <string>First Map</string>
+   </property>
+  </action>
+  <action name="actionMap_Last">
+   <property name="text">
+    <string>Last Map</string>
+   </property>
+  </action>
+  <action name="actionMap_Add_new">
+   <property name="text">
+    <string>Add new map</string>
+   </property>
+  </action>
+  <action name="actionMap_Insert">
+   <property name="text">
+    <string>Insert Map</string>
+   </property>
+  </action>
+  <action name="actionMap_Delete">
+   <property name="text">
+    <string>Delete Map</string>
+   </property>
+  </action>
+  <action name="actionMap_Go_to">
+   <property name="text">
+    <string>Go to Map</string>
+   </property>
+  </action>
+  <action name="actionMap_Move">
+   <property name="text">
+    <string>Move Map</string>
+   </property>
+  </action>
+  <action name="actionMap_Rename">
+   <property name="text">
+    <string>Rename Map</string>
    </property>
   </action>
  </widget>

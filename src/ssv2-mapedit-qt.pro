@@ -12,6 +12,7 @@ INCLUDEPATH += shared/ headers/ ./
 SOURCES += \
     actor.cpp \
     debug.cpp \
+    dlgselect.cpp \
     framemap.cpp \
     imswrap.cpp \
     main.cpp \
@@ -35,6 +36,7 @@ HEADERS += \
     actor.h \
     debug.h \
     defs.h \
+    dlgselect.h \
     framemap.h \
     imswrap.h \
     mainwindow.h \
@@ -59,6 +61,7 @@ HEADERS += \
     shared/qtgui/qthelper.h
 
 FORMS += \
+    dlgselect.ui \
     mainwindow.ui
 
 unix:LIBS += -lz
