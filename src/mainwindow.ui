@@ -29,7 +29,7 @@
     </property>
     <widget class="QMenu" name="menuRecent_Maps">
      <property name="title">
-      <string>Recent files</string>
+      <string>Recent Files</string>
      </property>
      <addaction name="actionNothing_yet"/>
     </widget>
@@ -57,6 +57,8 @@
     <addaction name="actionEdit_Copy"/>
     <addaction name="actionEdit_Paste"/>
     <addaction name="actionEdit_Delete"/>
+    <addaction name="separator"/>
+    <addaction name="actionEdit_Preferences"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -147,6 +149,12 @@
    <property name="text">
     <string>Exit</string>
    </property>
+   <property name="statusTip">
+    <string>Exit application</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::QuitRole</enum>
+   </property>
   </action>
   <action name="actionFile_Save_as">
    <property name="icon">
@@ -166,10 +174,16 @@
    <property name="text">
     <string>About</string>
    </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::AboutRole</enum>
+   </property>
   </action>
   <action name="actionHelp_About_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::AboutQtRole</enum>
    </property>
   </action>
   <action name="actionExport_Map_Object_List">
@@ -229,6 +243,9 @@
    <property name="text">
     <string>Previous Map</string>
    </property>
+   <property name="statusTip">
+    <string>Go to the previous map</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+PgUp</string>
    </property>
@@ -240,6 +257,9 @@
    </property>
    <property name="text">
     <string>Next Map</string>
+   </property>
+   <property name="statusTip">
+    <string>Go to the next map</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+PgDown</string>
@@ -253,6 +273,9 @@
    <property name="text">
     <string>First Map</string>
    </property>
+   <property name="statusTip">
+    <string>Go to the first map</string>
+   </property>
   </action>
   <action name="actionMap_Last">
    <property name="icon">
@@ -261,6 +284,9 @@
    </property>
    <property name="text">
     <string>Last Map</string>
+   </property>
+   <property name="statusTip">
+    <string>Go to the last map</string>
    </property>
   </action>
   <action name="actionMap_Add_new">
@@ -271,6 +297,9 @@
    <property name="text">
     <string>Add new map</string>
    </property>
+   <property name="statusTip">
+    <string>Add a new map</string>
+   </property>
   </action>
   <action name="actionMap_Insert">
    <property name="icon">
@@ -278,6 +307,9 @@
    </property>
    <property name="text">
     <string>Insert Map</string>
+   </property>
+   <property name="statusTip">
+    <string>Insert a new map</string>
    </property>
   </action>
   <action name="actionMap_Delete">
@@ -287,6 +319,9 @@
    </property>
    <property name="text">
     <string>Delete Map</string>
+   </property>
+   <property name="statusTip">
+    <string>Delete current map</string>
    </property>
   </action>
   <action name="actionMap_Go_to">
@@ -302,10 +337,21 @@
    <property name="text">
     <string>Move Map</string>
    </property>
+   <property name="statusTip">
+    <string>Move the current map</string>
+   </property>
   </action>
   <action name="actionMap_Rename">
    <property name="text">
     <string>Rename Map</string>
+   </property>
+   <property name="statusTip">
+    <string>Rename current map</string>
+   </property>
+  </action>
+  <action name="actionEdit_Preferences">
+   <property name="text">
+    <string>Preferences...</string>
    </property>
   </action>
  </widget>

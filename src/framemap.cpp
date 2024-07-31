@@ -114,11 +114,12 @@ bool CFrameMap::write(const char *filename)
     return tfile != nullptr;
 }
 
-bool CFrameMap::read(const char *filename)
+bool CFrameMap::read(const char *)
 {
     // TODO: implement this
     return true;
 }
+
 uint8_t *CFrameMap::operator[](int i)
 {
     return mapPtr(i);

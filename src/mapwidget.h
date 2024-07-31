@@ -5,6 +5,7 @@ class CFrame;
 class CFrameSet;
 class CScript;
 class CActor;
+class CSelection;
 
 #include <QWidget>
 #include <QTimer>
@@ -20,7 +21,9 @@ public:
     int at(int x, int y);
     void select(int selected);
     int selected();
+    void clearSelection();
     void translate(int tx, int ty);
+    CSelection *selection();
 
 signals:
     void mapSpoiled();
@@ -77,6 +80,8 @@ protected:
     uint32_t m_ticks = 0;
     std::string m_tileset;
     int m_selected = INVALID;
+    CSelection *m_selection;
+
     friend class CMapScroll;
 };
 

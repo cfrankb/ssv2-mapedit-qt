@@ -8,6 +8,7 @@
 #include "FrameSet.h"
 #include "script.h"
 #include "defs.h"
+#include "selection.h"
 #include "shared/qtgui/qfilewrap.h"
 
 CMapWidget::CMapWidget(QWidget *parent)
@@ -20,11 +21,16 @@ CMapWidget::CMapWidget(QWidget *parent)
     m_timer.start();
     preloadAssets();
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
+    m_selection = new CSelection;
 }
 
 CMapWidget::~CMapWidget()
 {
     m_timer.stop();
+
+    delete m_tiles;
+    delete m_player;
+    delete m_selection;
 }
 
 void CMapWidget::setMap(CScript *pMap)
@@ -77,7 +83,10 @@ void CMapWidget::paintEvent(QPaintEvent *)
         if (m_showGrid) {
            // drawGrid(bitmap);
         }
-        drawSelectionRect(bitmap, m_selected);
+        for (int i=0; i < m_selection->getSize(); ++i) {
+            int selected = m_selection->getIndex(i);
+            drawSelectionRect(bitmap, selected);
+        }
     }
 
     if (width !=0 && height != 0) {
@@ -323,6 +332,7 @@ int CMapWidget::at(int x, int y)
 void CMapWidget::select(int selected)
 {
     m_selected = selected;
+    m_selection->addEntry((*m_map)[selected], selected);
 }
 
 int CMapWidget::selected()
@@ -332,11 +342,22 @@ int CMapWidget::selected()
 
 void CMapWidget::translate(int tx, int ty)
 {
-    emit mapSpoiled();
     if (!m_map || m_selected == INVALID) {
         return ;
     }
-    CActor &entry{(*m_map)[m_selected]};
-    entry.x += tx;
-    entry.y += ty;
+    emit mapSpoiled();
+    m_selection->applyDelta(tx,ty, m_map);
+
+    //CActor &entry{(*m_map)[m_selected]};
+    //entry.x += tx;
+    //entry.y += ty;
+}
+
+void CMapWidget::clearSelection()
+{
+    m_selection->clear();
+}
+
+CSelection * CMapWidget::selection() {
+    return m_selection;
 }

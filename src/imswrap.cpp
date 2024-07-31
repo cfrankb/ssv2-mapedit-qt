@@ -197,7 +197,6 @@ bool CImsWrap::readIMS(const char *imsFilename)
 
     char imsNames[IMSNAME_MAX];
     memset(imsNames, 0, sizeof(imsNames));
-    imsLookup_t *imsLookup = nullptr;
     FILE *imsFile = fopen(imsFilename, "rb");
     if (imsFile)
     {
@@ -389,16 +388,16 @@ void CImsWrap::toFrameSet(CFrameSet &frameSet, FILE *mapFile)
         const auto &entry = lookup.ptrEntry;
         uint16_t *fntData = &entry->fntData;
         CFrame *frame = new CFrame(FNT_BLOCK_SIZE * entry->len, FNT_BLOCK_SIZE * entry->hei);
-        for (int y = 0; y < entry->hei; ++y)
+        for (uint y = 0; y < entry->hei; ++y)
         {
-            for (int x = 0; x < entry->len; ++x)
+            for (uint x = 0; x < entry->len; ++x)
             {
                 const auto fntBlock = *fntData;
                 auto &tile = m_tileData[fntBlock];
                 auto pixels = tile.pixels;
-                for (int yy = 0; yy < FNT_BLOCK_SIZE; ++yy)
+                for (uint yy = 0; yy < FNT_BLOCK_SIZE; ++yy)
                 {
-                    for (int xx = 0; xx < FNT_BLOCK_SIZE; ++xx)
+                    for (uint xx = 0; xx < FNT_BLOCK_SIZE; ++xx)
                     {
                         auto &rgba = frame->at(x * FNT_BLOCK_SIZE + xx, y * FNT_BLOCK_SIZE + yy);
                         const rgba_t &color = getPaletteColor(*pixels++);

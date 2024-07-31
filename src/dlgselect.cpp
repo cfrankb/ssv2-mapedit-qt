@@ -56,8 +56,8 @@ void CDlgSelect::updatePreview(CScript *map)
     CFrame bitmap(320,240);
     bitmap.fill(BLACK);
 
-    const int scrLen = bitmap.len();
-    const int scrHei = bitmap.hei();
+    const uint scrLen = bitmap.len();
+    const uint scrHei = bitmap.hei();
     const int rows = bitmap.hei() / FNT_BLOCK_SIZE;
     const int cols = bitmap.len() / FNT_BLOCK_SIZE;
     const int hx = cols / 2;
@@ -99,13 +99,13 @@ void CDlgSelect::updatePreview(CScript *map)
             const int fhei = frows - offsetY;
             const int sx = rx > 0 ? rx : 0;
             const int sy = ry > 0 ? ry : 0;
-            for (int y = 0; y < fhei * FNT_BLOCK_SIZE; ++y)
+            for (uint y = 0; y < fhei * FNT_BLOCK_SIZE; ++y)
             {
                 if (sy * FNT_BLOCK_SIZE + y >= scrHei)
                     break;
                 uint32_t *rgba = &bitmap.at(sx * FNT_BLOCK_SIZE, sy * FNT_BLOCK_SIZE + y);
                 const uint32_t *pixel = &frame->at(offsetX * FNT_BLOCK_SIZE, offsetY * FNT_BLOCK_SIZE + y);
-                for (int x = 0; x < flen * FNT_BLOCK_SIZE; ++x)
+                for (uint x = 0; x < flen * FNT_BLOCK_SIZE; ++x)
                 {
                     if (sx * FNT_BLOCK_SIZE + x >= scrLen)
                         break;

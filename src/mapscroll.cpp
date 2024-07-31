@@ -1,7 +1,9 @@
 #include <QScrollBar>
 #include <QMouseEvent>
+#include <QKeySequence>
 #include "mapscroll.h"
 #include "mapwidget.h"
+#include "selection.h"
 
 CMapScroll::CMapScroll(QWidget *parent)
     : QAbstractScrollArea{parent}
@@ -19,6 +21,7 @@ CMapScroll::CMapScroll(QWidget *parent)
     m_mouse.x = m_mouse.y = m_mouse.orgX = m_mouse.orgY = -1;
     m_mouse.lButton = m_mouse.rButton = m_mouse.mButton = false;
     update();
+    memset(m_keyStates, 0, sizeof(m_keyStates));
 }
 
 
@@ -62,24 +65,28 @@ void CMapScroll::mousePressEvent(QMouseEvent *event)
         break;
     }
 
-
     m_mouse.orgX = m_mouse.x;
     m_mouse.orgY = m_mouse.y;
     setFocus();
-    int mx, my;
-    topXY(mx, my);
-    if (m_mouse.lButton && (m_mouse.x >= 0 && m_mouse.y >= 0))
+    if (m_mouse.lButton) // && (m_mouse.x >= 0 && m_mouse.y >= 0))
     {
+        int mx = topX();
+        int my = topY();
         CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
         int id = glw->at(mx + m_mouse.x, my + m_mouse.y);
+
+        if (id == INVALID
+            && !m_keyStates[Key_Ctrl]
+            && !glw->selection()->contains(id))
+        {
+            glw->clearSelection();
+        }
         glw->select(id);
         if (id != INVALID) {
             //qDebug("item: %d", id);
         }
         //emit leftClickedAt(m_mouse.x, m_mouse.y);
     }
-
-
 }
 
 void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
@@ -112,8 +119,8 @@ void CMapScroll::mouseMoveEvent(QMouseEvent *event)
     CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
     int selected = glw->selected();
     if (m_mouse.lButton && (m_mouse.x >= 0 && m_mouse.y >= 0) && selected != INVALID) {
-        int tx =  m_mouse.x - m_mouse.orgX;// : m_mouse.orgX - m_mouse.x;
-        int ty = m_mouse.y - m_mouse.orgY;// : m_mouse.orgY - m_mouse.y;
+        int tx = m_mouse.x - m_mouse.orgX;
+        int ty = m_mouse.y - m_mouse.orgY;
         glw->translate(tx,ty);
     }
 
@@ -172,4 +179,77 @@ void CMapScroll::topXY(int &x, int &y)
 {
     x = horizontalScrollBar()->value();
     y = verticalScrollBar()->value();
+}
+
+int CMapScroll::topX()
+{
+    return horizontalScrollBar()->value();
+}
+
+int CMapScroll::topY()
+{
+    return verticalScrollBar()->value();
+}
+
+void CMapScroll::keyPressEvent(QKeyEvent* event)
+{
+    const auto modifier = event->modifiers();
+    const auto key = event->key();
+    if (modifier & Qt::ControlModifier) {
+        keyReflector(Key_Ctrl, KEY_PRESSED);
+    }
+
+    if (modifier & Qt::AltModifier) {
+        keyReflector(Key_Alt, KEY_PRESSED);
+
+    }
+
+    if (modifier & Qt::ShiftModifier) {
+        keyReflector(Key_Shift, KEY_PRESSED);
+    }
+
+    if (key == Qt::Key_Return
+        || key == Qt::Key_Enter) {
+        keyReflector(Key_Enter, KEY_PRESSED);
+    }
+
+    if (key == Qt::Key_Meta){
+        keyReflector(Key_Meta, KEY_PRESSED);
+    }
+}
+
+void CMapScroll::keyReleaseEvent(QKeyEvent* event)
+{
+    const auto modifier = event->modifiers();
+    if (modifier & Qt::ControlModifier) {
+        keyReflector(Key_Ctrl, KEY_RELEASED);
+    }
+
+    if (modifier & Qt::AltModifier) {
+        keyReflector(Key_Alt, KEY_RELEASED);
+
+    }
+
+    if (modifier & Qt::ShiftModifier) {
+        keyReflector(Key_Shift, KEY_RELEASED);
+    }
+
+    if (event->key() == Qt::Key::Key_Control) {
+        keyReflector(Key_Ctrl, KEY_RELEASED);
+    }
+
+    if (event->key() == Qt::Key_Return
+        || event->key() == Qt::Key_Enter) {
+        keyReflector(Key_Enter, KEY_RELEASED);
+    }
+
+    if (event->key() == Qt::Key_Meta){
+        keyReflector(Key_Meta, KEY_RELEASED);
+    }
+}
+
+
+void CMapScroll::keyReflector(uint32_t key, uint8_t state)
+{
+    m_keyStates[key] = state;
 }

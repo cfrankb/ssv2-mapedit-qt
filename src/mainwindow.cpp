@@ -1,17 +1,18 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "mapscroll.h"
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QSettings>
 #include <QStatusBar>
 #include <QInputDialog>
+#include <QShortcut>
 #include "script.h"
+#include "selection.h"
 #include "mapwidget.h"
+#include "mapscroll.h"
 #include "dlgselect.h"
 #include "debug.h"
-#include <QShortcut>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -294,7 +295,6 @@ void MainWindow::openRecentFile()
 
 void MainWindow::initToolBar()
 {
-
     ui->toolBar->setIconSize(QSize(16, 16));
     ui->toolBar->addAction(ui->actionFile_New_File);
     ui->toolBar->addAction(ui->actionFile_Open);
@@ -368,29 +368,6 @@ void MainWindow::onLeftClick(int x, int y) {
         if (!map) {
             return;
         }
-
-
-        /*
-        const uint8_t tile = m_doc.map()->at(x, y);
-        uint8_t newTileId = tile;
-        switch (currentTool())
-        {
-        case TOOL_PAINT:
-            newTileId = m_currTile;
-            break;
-        case TOOL_ERASE:
-            newTileId = 0;
-            break;
-        case TOOL_SELECT:
-            m_currTile = m_doc.map()->at(x, y);
-            emit newTile(m_currTile);
-        }
-
-        if (newTileId != tile)
-        {
-            m_doc.map()->at(x, y) = newTileId;
-            m_doc.setDirty(true);
-        }*/
     }
 }
 
@@ -421,11 +398,21 @@ void MainWindow::on_actionEdit_Cut_triggered()
         return;
     }
     auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
-    int selected = widget->selected();
-    if (selected != INVALID) {
-        m_clipboard = {map->tileset(), selected, CActor{(*map)[selected]}};
-        map->removeAt(selected);
-        widget->select(INVALID);
+    auto selection = widget->selection();
+    auto size = selection->getSize();
+    if (size != 0) {
+        m_clipboard.tileset = map->tileset();
+        m_clipboard.selected.clear();
+        for (int i=0; i < size; ++i){
+            auto id = selection->getIndex(i);
+            m_clipboard.selected.emplace_back((*map)[id]);
+            map->removeAt(id);
+            for (int j=i + 1; j < size; ++j) {
+                auto v = selection->getIndex(j);
+                selection->setIndex(j, v > id ? --v: v);
+            }
+        }
+        selection->clear();
         m_doc.setDirty(true);
     }
 }
@@ -438,9 +425,15 @@ void MainWindow::on_actionEdit_Copy_triggered()
         return;
     }
     auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
-    int selected = widget->selected();
-    if (selected != INVALID) {
-        m_clipboard = {map->tileset(), selected, CActor{(*map)[selected]}};
+    auto selection = widget->selection();
+    auto size = selection->getSize();
+    if (size != 0) {
+        m_clipboard.tileset = map->tileset();
+        m_clipboard.selected.clear();
+        for (int i=0; i < size; ++i){
+            auto id = selection->getIndex(i);
+            m_clipboard.selected.emplace_back((*map)[id]);
+        }
     }
 }
 
@@ -451,13 +444,19 @@ void MainWindow::on_actionEdit_Paste_triggered()
     if (!map) {
         return;
     }
+
     auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
-    if (m_clipboard.entryID != INVALID
-        && m_clipboard.tileset == map->tileset()) {
-        CActor actor = m_clipboard.selected;
-        actor.x += 1;
-        actor.y += 1;
-        widget->select(map->add(actor));
+    auto selection = widget->selection();
+    if (m_clipboard.tileset == map->tileset()
+        && m_clipboard.selected.size() != 0) {
+        selection->clear();
+        for (size_t i=0; i < m_clipboard.selected.size(); ++i){
+            CActor & actor = m_clipboard.selected[i];
+            ++actor.x;
+            ++actor.y;
+            int id = map->add(actor);
+            selection->addEntry((*map)[id], id);
+        }
         m_doc.setDirty(true);
     }
 }
@@ -470,12 +469,21 @@ void MainWindow::on_actionEdit_Delete_triggered()
         return;
     }
     auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
-    int selected = widget->selected();
-    if (selected != INVALID) {
-        map->removeAt(selected);
-        widget->select(INVALID);
+    auto selection = widget->selection();
+    auto size = selection->getSize();
+    if (size != 0) {
+        for (int i=0; i < size; ++i){
+            auto id = selection->getIndex(i);
+            map->removeAt(id);
+            for (int j=i + 1; j < size; ++j) {
+                auto v = selection->getIndex(j);
+                selection->setIndex(j, v > id ? --v: v);
+            }
+        }
+        selection->clear();
         m_doc.setDirty(true);
     }
+
     updateMenus();
 }
 
@@ -643,3 +651,21 @@ void MainWindow::shiftRight()
         m_doc.setDirty(true);
     }
 }
+
+void MainWindow::on_actionHelp_About_Qt_triggered()
+{
+    QApplication::aboutQt();
+}
+
+
+void MainWindow::on_actionEdit_Preferences_triggered()
+{
+
+}
+
+
+void MainWindow::on_actionHelp_About_triggered()
+{
+
+}
+

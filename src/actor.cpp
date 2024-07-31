@@ -27,3 +27,12 @@ CActor::~CActor()
 {
 }
 
+bool CActor::operator ==(const CActor &s)
+{
+    return memcmp(this, &s, sizeof(s)) == 0;
+}
+bool CActor::operator !=(const CActor &s)
+{
+    return memcmp(this, &s, sizeof(s)) != 0;
+}
+

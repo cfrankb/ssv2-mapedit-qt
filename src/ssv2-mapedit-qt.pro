@@ -17,12 +17,12 @@ SOURCES += \
     imswrap.cpp \
     main.cpp \
     mainwindow.cpp \
-    #mapentry.cpp \
     mapfile.cpp \
     mapscroll.cpp \
     mapwidget.cpp \
     script.cpp \
     scriptarch.cpp \
+    selection.cpp \
     shared/DotArray.cpp \
     shared/FileWrap.cpp \
     shared/Frame.cpp \
@@ -40,12 +40,12 @@ HEADERS += \
     framemap.h \
     imswrap.h \
     mainwindow.h \
-    #mapentry.h \
     mapfile.h \
     mapscroll.h \
     mapwidget.h \
     script.h \
     scriptarch.h \
+    selection.h \
     shared/CRC.h \
     shared/DotArray.h \
     shared/FileWrap.h \

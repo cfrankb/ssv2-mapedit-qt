@@ -61,6 +61,8 @@ public:
     uint8_t y;
 
     void clear();
+    bool operator ==(const CActor &s);
+    bool operator !=(const CActor &s);
 };
 
 #endif

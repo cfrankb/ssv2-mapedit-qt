@@ -2,12 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <vector>
 #include "mapfile.h"
 #include "actor.h"
 
 class QCloseEvent;
 class CScript;
 class CMapScroll;
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -34,6 +36,10 @@ private slots:
     void setStatus(const QString str);
     void onLeftClick(int, int);
     void showContextMenu(const QPoint &);
+    void shiftUp();
+    void shiftDown();
+    void shiftLeft();
+    void shiftRight();
     void on_actionFile_Open_triggered();
     void on_actionFile_Save_triggered();
     void on_actionFile_New_File_triggered();
@@ -53,10 +59,9 @@ private slots:
     void on_actionMap_Go_to_triggered();
     void on_actionMap_Rename_triggered();
     void on_actionMap_Move_triggered();
-    void shiftUp();
-    void shiftDown();
-    void shiftLeft();
-    void shiftRight();
+    void on_actionHelp_About_Qt_triggered();
+    void on_actionEdit_Preferences_triggered();
+    void on_actionHelp_About_triggered();
 
 private:
     enum {
@@ -68,8 +73,7 @@ private:
 
     using clipboard_t = struct {
         std::string tileset;
-        int entryID;
-        CActor selected;
+        std::vector<CActor> selected;
     };
 
     CMapFile m_doc;
@@ -77,7 +81,7 @@ private:
     QString m_allFilter = tr("SSV2 Maps (*.scrx)");
     QAction *m_recentFileActs[MAX_RECENT_FILES];
     CMapScroll *m_scrollArea;
-    clipboard_t m_clipboard{"", INVALID, CActor()};
+    clipboard_t m_clipboard{"", {}};
 
     virtual void closeEvent(QCloseEvent *event) override;
     bool isDirty();
