@@ -543,6 +543,11 @@ void MainWindow::on_actionMap_Add_new_triggered()
 
 void MainWindow::on_actionMap_Insert_triggered()
 {
+    int i = m_doc.currentIndex();
+    m_doc.insertAt(i, new CScript());
+    m_doc.setDirty(true);
+    emit mapChanged(m_doc.map());
+    updateMenus();
 }
 
 

@@ -18,7 +18,7 @@ CMapScroll::CMapScroll(QWidget *parent)
     setContextMenuPolicy(Qt::CustomContextMenu);
     setFrameShape(QFrame::NoFrame);
     setAutoFillBackground(false);
-    m_mouse.x = m_mouse.y = m_mouse.orgX = m_mouse.orgY = -1;
+    m_mouse.x = m_mouse.y = m_mouse.orgX = m_mouse.orgY = INVALID;
     m_mouse.lButton = m_mouse.rButton = m_mouse.mButton = false;
     update();
     memset(m_keyStates, 0, sizeof(m_keyStates));
@@ -67,26 +67,27 @@ void CMapScroll::mousePressEvent(QMouseEvent *event)
 
     m_mouse.orgX = m_mouse.x;
     m_mouse.orgY = m_mouse.y;
-    setFocus();
-    if (m_mouse.lButton) // && (m_mouse.x >= 0 && m_mouse.y >= 0))
+    if (m_mouse.lButton)
     {
-        int mx = topX();
-        int my = topY();
-        CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
-        int id = glw->at(mx + m_mouse.x, my + m_mouse.y);
-
-        if (id == INVALID
-            && !m_keyStates[Key_Ctrl]
-            && !glw->selection()->contains(id))
+        CMapWidget *glw{dynamic_cast<CMapWidget *>(viewport())};
+        int id{glw->at(topX() + m_mouse.x, topY() + m_mouse.y)};
+        auto selection{glw->selection()};
+        if (id == INVALID ||
+            (!m_keyStates[Key_Ctrl] && !selection->contains(id)))
         {
-            glw->clearSelection();
+            selection->clear();
         }
-        glw->select(id);
         if (id != INVALID) {
-            //qDebug("item: %d", id);
+            int i{selection->find(id)};
+            if (i != INVALID && m_keyStates[Key_Ctrl]) {
+                selection->removeAt(i);
+            } else {
+                glw->select(id);
+            }
         }
         //emit leftClickedAt(m_mouse.x, m_mouse.y);
     }
+    setFocus();
 }
 
 void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
@@ -107,8 +108,8 @@ void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
 
 void CMapScroll::mouseMoveEvent(QMouseEvent *event)
 {
-    m_mouse.x = event->pos().x() / SCREEN_PARTION; //+ horizontalScrollBar()->value();
-    m_mouse.y = event->pos().y() / SCREEN_PARTION; //+ verticalScrollBar()->value();
+    m_mouse.x = event->pos().x() / SCREEN_PARTION;
+    m_mouse.y = event->pos().y() / SCREEN_PARTION;
     QString str{QString("x: %1 y: %2").arg(m_mouse.x).arg(m_mouse.y)};
     emit statusChanged(str);
     if (m_mouse.lButton && (m_mouse.x >= 0 && m_mouse.y >= 0))
@@ -116,17 +117,15 @@ void CMapScroll::mouseMoveEvent(QMouseEvent *event)
        // emit leftClickedAt(m_mouse.x, m_mouse.y);
     }
 
-    CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
-    int selected = glw->selected();
-    if (m_mouse.lButton && (m_mouse.x >= 0 && m_mouse.y >= 0) && selected != INVALID) {
+    CMapWidget *glw{dynamic_cast<CMapWidget *>(viewport())};
+    auto selection{glw->selection()};
+    if (m_mouse.lButton && selection->getSize() != 0) {
         int tx = m_mouse.x - m_mouse.orgX;
         int ty = m_mouse.y - m_mouse.orgY;
         glw->translate(tx,ty);
+        m_mouse.orgX = m_mouse.x;
+        m_mouse.orgY = m_mouse.y;
     }
-
-    m_mouse.orgX = m_mouse.x;
-    m_mouse.orgY = m_mouse.y;
-
 }
 
 void CMapScroll::wheelEvent(QWheelEvent *event)

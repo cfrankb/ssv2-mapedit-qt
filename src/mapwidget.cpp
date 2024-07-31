@@ -28,15 +28,21 @@ CMapWidget::~CMapWidget()
 {
     m_timer.stop();
 
-    delete m_tiles;
-    delete m_player;
-    delete m_selection;
+    if (m_tiles) {
+        delete m_tiles;
+    }
+
+    if (m_player) {
+        delete m_player;
+    }
+
+    if (m_selection) {
+        delete m_selection;
+    }
 }
 
 void CMapWidget::setMap(CScript *pMap)
 {
-    //qDebug("setMap");
-    m_selected = INVALID;
     m_map = pMap;
     if (m_map->tileset() != m_tileset) {
         m_tileset = m_map->tileset();
@@ -103,28 +109,33 @@ void CMapWidget::paintEvent(QPaintEvent *)
     p.end();
 }
 
-void CMapWidget::drawSelectionRect(CFrame &bitmap, int entryID)
+void CMapWidget::drawSelectionRect(CFrame &bitmap, const int entryID)
 {
     if (entryID == INVALID || !m_map) {
         return;
     }
-    uint32_t color = rand();
+    const auto &entry{(*m_map)[entryID]};
+    CFrame *frame = fromEntry(entry);
+    const int fcols = frame->len() / FNT_BLOCK_SIZE;
+    const int frows = frame->hei() / FNT_BLOCK_SIZE;
+    drawSelectionRect(bitmap, entry.x, entry.y, fcols, frows);
+}
+
+void CMapWidget::drawSelectionRect(CFrame &bitmap, const int x, const int y, const int fcols, const int frows)
+{
+    CMapScroll *scr = static_cast<CMapScroll*>(parent());
+    const int mx = scr->horizontalScrollBar()->value();
+    const int my = scr->verticalScrollBar()->value();
+    const int rx = x - mx;
+    const int ry = y - my;
     const int maxRows = bitmap.hei() / FNT_BLOCK_SIZE;
     const int maxCols = bitmap.len() / FNT_BLOCK_SIZE;
     const int rows = std::min(maxRows, static_cast<int>(MAX_AXIS));
     const int cols = std::min(maxCols, static_cast<int>(MAX_AXIS));
-    CMapScroll *scr = static_cast<CMapScroll*>(parent());
-    const int mx = scr->horizontalScrollBar()->value();
-    const int my = scr->verticalScrollBar()->value();
     const uint scrLen = bitmap.len();
     const uint scrHei = bitmap.hei();
+    const uint32_t color{static_cast<uint32_t>(rand())};
 
-    const auto &entry{(*m_map)[entryID]};
-    const int rx = entry.x - mx;
-    const int ry = entry.y - my;
-    CFrame *frame = fromEntry(entry);
-    const int fcols = frame->len() / FNT_BLOCK_SIZE;
-    const int frows = frame->hei() / FNT_BLOCK_SIZE;
     if ((rx < cols) &&
         (rx + fcols > 0) &&
         (ry < rows) &&
@@ -331,32 +342,18 @@ int CMapWidget::at(int x, int y)
 
 void CMapWidget::select(int selected)
 {
-    m_selected = selected;
     m_selection->addEntry((*m_map)[selected], selected);
-}
-
-int CMapWidget::selected()
-{
-    return m_selected;
 }
 
 void CMapWidget::translate(int tx, int ty)
 {
-    if (!m_map || m_selected == INVALID) {
+    if (!m_map || m_selection->getSize() == 0) {
         return ;
     }
     emit mapSpoiled();
     m_selection->applyDelta(tx,ty, m_map);
-
-    //CActor &entry{(*m_map)[m_selected]};
-    //entry.x += tx;
-    //entry.y += ty;
 }
 
-void CMapWidget::clearSelection()
-{
-    m_selection->clear();
-}
 
 CSelection * CMapWidget::selection() {
     return m_selection;

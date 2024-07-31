@@ -105,26 +105,6 @@ void CSelection::setIndex(int i, int index)
     m_index[i] = index;
 }
 
-void CSelection::removeFromIndex(int index)
-{
-    // TODO: Doesn't work. Fix it
-
-    for (int i=0; i < m_size; ++i) {
-        if (m_index[i] == index) {
-            // if this scriptENtry is present
-            // remove it
-            removeAt(i);
-        } else {
-            if (m_index[i] > index) {
-                // decrement the index of all
-                // entries above the one being
-                // removed
-                --m_index[i];
-            }
-        }
-    }
-}
-
 void CSelection::removeAt(int i)
 {
     // remove entry from the index
@@ -134,7 +114,6 @@ void CSelection::removeAt(int i)
     }
     --m_size;
 }
-
  
 void CSelection::applyDelta(int dx, int dy)
 {
@@ -222,4 +201,14 @@ bool CSelection::contains(int i)
         }
     }
     return false;
+}
+
+int CSelection::find(int index)
+{
+    for (int j=0; j < m_size; ++j) {
+        if (m_index[j] == index) {
+            return j;
+        }
+    }
+    return INVALID;
 }

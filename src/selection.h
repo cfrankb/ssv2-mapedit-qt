@@ -39,7 +39,6 @@ public:
     int getSize();
     int getIndex(int i);
     void setIndex(int i, int index);
-    void removeFromIndex(int index);
     void removeAt(int i);
     void applyDelta(int dx, int dy);
     void applyDelta(int dx, int dy, CScript *script);
@@ -47,11 +46,13 @@ public:
     void resync(const CActor & entry, int index);
     CActor & cacheAtIndex(int index);
     bool contains(int i);
+    int find(int index);
 
 protected:
 
     enum {
-        GROWBY = 10
+        GROWBY = 10,
+        INVALID = -1
     };
 
     int m_size;

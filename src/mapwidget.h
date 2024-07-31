@@ -20,8 +20,6 @@ public:
     void setMap(CScript *pMap);
     int at(int x, int y);
     void select(int selected);
-    int selected();
-    void clearSelection();
     void translate(int tx, int ty);
     CSelection *selection();
 
@@ -65,9 +63,9 @@ protected:
     void loadTileset();
     inline void drawScreen(CFrame &bitmap);
     inline void drawFont(CFrame & frame, int x, int y, const char *text, const uint32_t color, const bool alpha);
-    //inline void drawTile(CFrame & bitmap, const int x, const int y, CFrame & tile, const bool alpha);
     //inline void drawGrid(CFrame & bitmap);
-    void drawSelectionRect(CFrame &bitmap, int entryID);
+    void drawSelectionRect(CFrame &bitmap, const int entryID);
+    void drawSelectionRect(CFrame &bitmap, const int rx, const int ry, const int len, const int hei);
     CFrame * fromEntry(const CActor &entry);
 
     QTimer m_timer;
@@ -79,7 +77,6 @@ protected:
     bool m_animate = false;
     uint32_t m_ticks = 0;
     std::string m_tileset;
-    int m_selected = INVALID;
     CSelection *m_selection;
 
     friend class CMapScroll;
