@@ -22,6 +22,7 @@ CMapWidget::CMapWidget(QWidget *parent)
     preloadAssets();
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(update()));
     m_selection = new CSelection;
+    m_selectRect.show = false;
 }
 
 CMapWidget::~CMapWidget()
@@ -89,10 +90,16 @@ void CMapWidget::paintEvent(QPaintEvent *)
         if (m_showGrid) {
            // drawGrid(bitmap);
         }
+        const uint32_t color{static_cast<uint32_t>(rand())};
         for (int i=0; i < m_selection->getSize(); ++i) {
             int selected = m_selection->getIndex(i);
-            drawSelectionRect(bitmap, selected);
+            drawSelectionRect(bitmap, selected, color);
         }
+        if (m_selectRect.show) {
+            drawSelectionRect(bitmap, m_selectRect.x, m_selectRect.y, m_selectRect.dx, m_selectRect.dy, color);
+        }
+    } else {
+        drawCheckers(bitmap);
     }
 
     if (width !=0 && height != 0) {
@@ -109,7 +116,7 @@ void CMapWidget::paintEvent(QPaintEvent *)
     p.end();
 }
 
-void CMapWidget::drawSelectionRect(CFrame &bitmap, const int entryID)
+void CMapWidget::drawSelectionRect(CFrame &bitmap, const int entryID, const uint32_t color)
 {
     if (entryID == INVALID || !m_map) {
         return;
@@ -118,10 +125,10 @@ void CMapWidget::drawSelectionRect(CFrame &bitmap, const int entryID)
     CFrame *frame = fromEntry(entry);
     const int fcols = frame->len() / FNT_BLOCK_SIZE;
     const int frows = frame->hei() / FNT_BLOCK_SIZE;
-    drawSelectionRect(bitmap, entry.x, entry.y, fcols, frows);
+    drawSelectionRect(bitmap, entry.x, entry.y, fcols, frows, color);
 }
 
-void CMapWidget::drawSelectionRect(CFrame &bitmap, const int x, const int y, const int fcols, const int frows)
+void CMapWidget::drawSelectionRect(CFrame &bitmap, const int x, const int y, const int fcols, const int frows, const uint32_t color)
 {
     CMapScroll *scr = static_cast<CMapScroll*>(parent());
     const int mx = scr->horizontalScrollBar()->value();
@@ -134,7 +141,6 @@ void CMapWidget::drawSelectionRect(CFrame &bitmap, const int x, const int y, con
     const int cols = std::min(maxCols, static_cast<int>(MAX_AXIS));
     const uint scrLen = bitmap.len();
     const uint scrHei = bitmap.hei();
-    const uint32_t color{static_cast<uint32_t>(rand())};
 
     if ((rx < cols) &&
         (rx + fcols > 0) &&
@@ -354,7 +360,70 @@ void CMapWidget::translate(int tx, int ty)
     m_selection->applyDelta(tx,ty, m_map);
 }
 
-
 CSelection * CMapWidget::selection() {
     return m_selection;
 }
+
+void CMapWidget::showRect(int x, int y, int dx, int dy)
+{
+    m_selectRect = rect_t{true, x,y, dx,dy};
+}
+
+void CMapWidget::hideRect()
+{
+    m_selectRect.show = false;
+}
+
+void CMapWidget::collectRect()
+{
+    if (m_selectRect.show) {
+        selectWithin(
+            m_selectRect.x, m_selectRect.y,
+            m_selectRect.x + m_selectRect.dx - 1,
+            m_selectRect.y + m_selectRect.dy - 1);
+        hideRect();
+    }
+}
+
+void CMapWidget::selectWithin(const int x1, const int y1, const int x2, const int y2)
+{
+    if (!m_map) {
+        return;
+    }
+
+    for (int i=0; i < m_map->getSize(); ++i) {
+        const CActor & entry = (*m_map)[i];
+        const CFrame *frame = fromEntry(entry);
+        if (!frame) {
+            continue;
+        }
+        const int len = frame->len() / FNT_BLOCK_SIZE;
+        const int hei = frame->hei() / FNT_BLOCK_SIZE;
+        if (((entry.x >= x1 && entry.x <= x2)
+                || (entry.x <= x1 && entry.x + len >= x1)
+                || (entry.x <= x2 && entry.x + len >= x2))
+            &&
+            ((entry.y >= y1 && entry.y <= y2)
+             || (entry.y <= y1 && entry.y + hei >= y1)
+             || (entry.y <= y2 && entry.y + hei >= y2))
+            )
+        {
+            m_selection->addEntry(entry, i);
+        }
+    }
+}
+
+void CMapWidget::drawCheckers(CFrame &bitmap)
+{
+    bitmap.fill(LIGHTBLUE);
+    for (int y=0; y < bitmap.hei(); ++y) {
+        for (int x=0; x < bitmap.len(); ++x) {
+            if ( ((x & 16) !=0 && (y & 16)!=0) ||
+                 ((x & 16) ==0 && (y & 16)==0) )
+            {
+                bitmap.at(x,y) = MIDBLUE;
+            }
+        }
+    }
+}
+

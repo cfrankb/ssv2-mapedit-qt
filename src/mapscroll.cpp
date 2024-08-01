@@ -92,10 +92,16 @@ void CMapScroll::mousePressEvent(QMouseEvent *event)
 
 void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
 {
+    CMapWidget *glw{dynamic_cast<CMapWidget *>(viewport())};
     switch (event->button())
     {
     case Qt::LeftButton:
+        if (m_mouse.lButton) {
+            glw->collectRect();
+            glw->hideRect();
+        }
         m_mouse.lButton = false;
+
         break;
     case Qt::RightButton:
         m_mouse.rButton = false;
@@ -104,6 +110,8 @@ void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
         break;
     }
     setFocus();
+
+
 }
 
 void CMapScroll::mouseMoveEvent(QMouseEvent *event)
@@ -125,6 +133,12 @@ void CMapScroll::mouseMoveEvent(QMouseEvent *event)
         glw->translate(tx,ty);
         m_mouse.orgX = m_mouse.x;
         m_mouse.orgY = m_mouse.y;
+    } else if (m_mouse.lButton) {
+        int x = std::min(m_mouse.orgX, m_mouse.x);
+        int y = std::min(m_mouse.orgY, m_mouse.y);
+        int dx = std::abs(m_mouse.orgX - m_mouse.x);
+        int dy = std::abs(m_mouse.orgY - m_mouse.y);
+        glw->showRect(topX()+ x,topY()+y,dx,dy);
     }
 }
 

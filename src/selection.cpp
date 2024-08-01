@@ -138,7 +138,7 @@ void CSelection::operator =(CSelection & s)
     m_size = s.getSize();
     m_max = m_size;
     for (int i=0; i < s.getSize(); ++i) {
-        m_entries[i] = s[i];
+        m_entries[i] = s.m_entries[i];
         m_index[i] = s.getIndex(i);
     }
 }

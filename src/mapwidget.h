@@ -33,6 +33,15 @@ protected slots:
 protected:
 
     virtual void paintEvent(QPaintEvent *) ;
+
+    using rect_t = struct {
+        bool show;
+        int x;
+        int y;
+        int dx;
+        int dy;
+    };
+
     enum:uint32_t {
         MAX_AXIS = 256,
         FNT_BLOCK_SIZE = 8,
@@ -48,6 +57,8 @@ protected:
         GREEN  = 0x0000ff00 | ALPHA,
         LIME   = 0x0034ebb1 | ALPHA,
         BLUE   = 0x00ff0000 | ALPHA,
+        LIGHTBLUE = 0xffff9050,
+        MIDBLUE  = 0xffff8040,
         DARKBLUE = 0x00440000 | ALPHA,
         LIGHTSLATEGRAY= 0x00998877 | ALPHA,
         LIGHTGRAY= 0x00DCDCDC | ALPHA,
@@ -64,9 +75,14 @@ protected:
     inline void drawScreen(CFrame &bitmap);
     inline void drawFont(CFrame & frame, int x, int y, const char *text, const uint32_t color, const bool alpha);
     //inline void drawGrid(CFrame & bitmap);
-    void drawSelectionRect(CFrame &bitmap, const int entryID);
-    void drawSelectionRect(CFrame &bitmap, const int rx, const int ry, const int len, const int hei);
+    void drawSelectionRect(CFrame &bitmap, const int entryID, const uint32_t color);
+    void drawSelectionRect(CFrame &bitmap, const int rx, const int ry, const int len, const int hei, const uint32_t color);
+    void drawCheckers(CFrame &bitmap);
     CFrame * fromEntry(const CActor &entry);
+    void showRect(int x, int y, int dx, int dy);
+    void hideRect();
+    void collectRect();
+    void selectWithin(const int x1, const int y1, const int x2, const int y2);
 
     QTimer m_timer;
     CFrameSet *m_tiles = nullptr;
@@ -78,6 +94,7 @@ protected:
     uint32_t m_ticks = 0;
     std::string m_tileset;
     CSelection *m_selection;
+    rect_t m_selectRect;
 
     friend class CMapScroll;
 };
