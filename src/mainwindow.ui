@@ -198,6 +198,9 @@
    <property name="text">
     <string>Cut</string>
    </property>
+   <property name="statusTip">
+    <string>Cut the selected elements</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
    </property>
@@ -208,6 +211,9 @@
    </property>
    <property name="text">
     <string>Copy</string>
+   </property>
+   <property name="statusTip">
+    <string>Copy the selected elements to the clipbpard</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
@@ -220,6 +226,9 @@
    <property name="text">
     <string>Paste</string>
    </property>
+   <property name="statusTip">
+    <string>Paste elements from the clipboard</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
    </property>
@@ -230,6 +239,9 @@
    </property>
    <property name="text">
     <string>Delete</string>
+   </property>
+   <property name="statusTip">
+    <string>Delete the selected elements</string>
    </property>
    <property name="shortcut">
     <string>Del</string>

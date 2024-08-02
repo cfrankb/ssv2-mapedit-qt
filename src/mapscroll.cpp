@@ -1,6 +1,7 @@
 #include <QScrollBar>
 #include <QMouseEvent>
 #include <QKeySequence>
+#include <QMainWindow>
 #include "mapscroll.h"
 #include "mapwidget.h"
 #include "selection.h"
@@ -24,7 +25,6 @@ CMapScroll::CMapScroll(QWidget *parent)
     memset(m_keyStates, 0, sizeof(m_keyStates));
 }
 
-
 void CMapScroll::resizeEvent(QResizeEvent *event)
 {
     CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
@@ -41,11 +41,11 @@ void CMapScroll::paintEvent(QPaintEvent *event)
 void CMapScroll::updateScrollbars()
 {
     QSize sz = size();
-    int h = sz.width() / FNT_BLOCK_SIZE;
-    int v = sz.height() / FNT_BLOCK_SIZE;
+    int h = (sz.width() - verticalScrollBar()->width()) / SCREEN_PARTION;
+    int v = (sz.height() - horizontalScrollBar()->height()) / SCREEN_PARTION;
 
-    horizontalScrollBar()->setRange(0, m_mapLen - h);
-    verticalScrollBar()->setRange(0, m_mapHei - v);
+    horizontalScrollBar()->setRange(0, MAP_LEN - h);
+    verticalScrollBar()->setRange(0, MAP_HEI - v);
 
     horizontalScrollBar()->setPageStep(STEPS);
     verticalScrollBar()->setPageStep(STEPS);
@@ -85,9 +85,7 @@ void CMapScroll::mousePressEvent(QMouseEvent *event)
                 glw->select(id);
             }
         }
-        //emit leftClickedAt(m_mouse.x, m_mouse.y);
     }
-    setFocus();
 }
 
 void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
@@ -101,7 +99,6 @@ void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
             glw->hideRect();
         }
         m_mouse.lButton = false;
-
         break;
     case Qt::RightButton:
         m_mouse.rButton = false;
@@ -109,21 +106,18 @@ void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
     default:
         break;
     }
-    setFocus();
-
-
 }
 
 void CMapScroll::mouseMoveEvent(QMouseEvent *event)
 {
     m_mouse.x = event->pos().x() / SCREEN_PARTION;
     m_mouse.y = event->pos().y() / SCREEN_PARTION;
-    QString str{QString("x: %1 y: %2").arg(m_mouse.x).arg(m_mouse.y)};
+    QString str{QString("x: %1 y: %2 [%3, %4]")
+                .arg(m_mouse.x)
+                .arg(m_mouse.y)
+                .arg(m_mouse.x + topX())
+                .arg(m_mouse.y + topY())};
     emit statusChanged(str);
-    if (m_mouse.lButton && (m_mouse.x >= 0 && m_mouse.y >= 0))
-    {
-       // emit leftClickedAt(m_mouse.x, m_mouse.y);
-    }
 
     CMapWidget *glw{dynamic_cast<CMapWidget *>(viewport())};
     auto selection{glw->selection()};
@@ -214,7 +208,6 @@ void CMapScroll::keyPressEvent(QKeyEvent* event)
 
     if (modifier & Qt::AltModifier) {
         keyReflector(Key_Alt, KEY_PRESSED);
-
     }
 
     if (modifier & Qt::ShiftModifier) {
@@ -229,6 +222,41 @@ void CMapScroll::keyPressEvent(QKeyEvent* event)
     if (key == Qt::Key_Meta){
         keyReflector(Key_Meta, KEY_PRESSED);
     }
+
+    if (modifier != 0){
+        return;
+    }
+
+    int mx = horizontalScrollBar()->value();
+    int my = verticalScrollBar()->value();
+    if (key == Qt::Key_Up && my > 0) {
+        verticalScrollBar()->setValue(--my);
+    }
+
+    if (key == Qt::Key_Down) {
+        verticalScrollBar()->setValue(++my);
+    }
+
+    if (key == Qt::Key_Left && mx > 0) {
+        horizontalScrollBar()->setValue(--mx);
+    }
+
+    if (key == Qt::Key_Right) {
+        horizontalScrollBar()->setValue(++mx);
+    }
+
+    if (key == Qt::Key_PageUp) {
+        verticalScrollBar()->setValue(my - STEPS);
+    }
+
+    if (key == Qt::Key_PageDown) {
+        verticalScrollBar()->setValue(my + STEPS);
+    }
+
+    if (key == Qt::Key_Home) {
+        horizontalScrollBar()->setValue(0);
+        verticalScrollBar()->setValue(0);
+    }
 }
 
 void CMapScroll::keyReleaseEvent(QKeyEvent* event)
@@ -240,7 +268,6 @@ void CMapScroll::keyReleaseEvent(QKeyEvent* event)
 
     if (modifier & Qt::AltModifier) {
         keyReflector(Key_Alt, KEY_RELEASED);
-
     }
 
     if (modifier & Qt::ShiftModifier) {
@@ -260,7 +287,6 @@ void CMapScroll::keyReleaseEvent(QKeyEvent* event)
         keyReflector(Key_Meta, KEY_RELEASED);
     }
 }
-
 
 void CMapScroll::keyReflector(uint32_t key, uint8_t state)
 {

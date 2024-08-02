@@ -36,7 +36,7 @@ protected:
     int topY();
     void keyReflector(uint32_t key, uint8_t state);
 
-    using Mouse = struct
+    using mouse_t = struct
     {
         int orgX;
         int orgY;
@@ -46,10 +46,8 @@ protected:
         bool rButton;
         bool mButton;
     };
-    Mouse m_mouse;
+    mouse_t m_mouse;
 
-    int m_mapLen = 256;
-    int m_mapHei = 256;
     enum
     {
         KEY_RELEASED = 0,
@@ -59,7 +57,10 @@ protected:
         GRID_SIZE = 32,
         STEPS = 4,
         INVALID = -1,
+        MAP_LEN = 255,
+        MAP_HEI = 255,
     };
+
     enum {
         Key_Shift,
         Key_Ctrl,

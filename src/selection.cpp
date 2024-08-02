@@ -51,10 +51,8 @@ CActor &CSelection::operator [](int i)
 void CSelection::addEntry(const CActor &entry, int index)
 {
     // check if this entry is already in the selection
-    for (int i=0; i < m_size; ++i) {
-        if (m_index[i] == index) {
-            return;
-        }
+    if (contains(index)) {
+        return;
     }
 
     if (m_size == m_max) {
@@ -115,14 +113,6 @@ void CSelection::removeAt(int i)
     --m_size;
 }
  
-void CSelection::applyDelta(int dx, int dy)
-{
-    for (int i=0; i < m_size; ++i) {
-        m_entries[i].x += dx;
-        m_entries[i].y += dy;
-    }
-}
-
 void CSelection::operator =(CSelection & s)
 {
     if (m_entries) {
@@ -188,19 +178,16 @@ void CSelection::applyDelta(int dx, int dy, CScript *script)
     for (int i=0; i < m_size; ++i) {
         m_entries[i].x += dx;
         m_entries[i].y += dy;
-        int j = m_index[i];
-        (*script)[j] = m_entries[i];
+        if (script) {
+            int j = m_index[i];
+            (*script)[j] = m_entries[i];
+        }
     }
 }
 
 bool CSelection::contains(int i)
 {
-    for (int j=0; j < m_size; ++j) {
-        if (m_index[j] == i) {
-            return true;
-        }
-    }
-    return false;
+    return find(i) != INVALID;
 }
 
 int CSelection::find(int index)

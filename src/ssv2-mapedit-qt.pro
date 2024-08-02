@@ -12,6 +12,7 @@ INCLUDEPATH += shared/ headers/ ./
 SOURCES += \
     actor.cpp \
     debug.cpp \
+    dlgeditmap.cpp \
     dlgselect.cpp \
     framemap.cpp \
     imswrap.cpp \
@@ -36,6 +37,7 @@ HEADERS += \
     actor.h \
     debug.h \
     defs.h \
+    dlgeditmap.h \
     dlgselect.h \
     framemap.h \
     imswrap.h \
@@ -61,6 +63,7 @@ HEADERS += \
     shared/qtgui/qthelper.h
 
 FORMS += \
+    dlgeditmap.ui \
     dlgselect.ui \
     mainwindow.ui
 

@@ -35,7 +35,8 @@ private slots:
     void loadFile(const QString & filename);
     void setStatus(const QString str);
     void onLeftClick(int, int);
-    void showContextMenu(const QPoint &);
+    void showContextMenu(const QPoint &pos);
+    void editEntry();
     void shiftUp();
     void shiftDown();
     void shiftLeft();
@@ -68,6 +69,8 @@ private:
         MAX_RECENT_FILES = 8,
         MAX_AXIS = 256,
         INVALID = -1,
+        FNT_BLOCK_SIZE = 8,
+        SCREEN_PARTION = 2 * FNT_BLOCK_SIZE,
     };
     Ui::MainWindow *ui;
 
@@ -82,6 +85,7 @@ private:
     QAction *m_recentFileActs[MAX_RECENT_FILES];
     CMapScroll *m_scrollArea;
     clipboard_t m_clipboard{"", {}};
+    int m_entryID = INVALID;
 
     virtual void closeEvent(QCloseEvent *event) override;
     bool isDirty();

@@ -66,7 +66,7 @@ protected:
         PLAYER_FRAME_CYCLE = 8,
     };
 
-    enum {
+    enum:int32_t {
         INVALID = -1,
     };
 
@@ -93,7 +93,7 @@ protected:
     bool m_animate = false;
     uint32_t m_ticks = 0;
     std::string m_tileset;
-    CSelection *m_selection;
+    CSelection *m_selection = nullptr;
     rect_t m_selectRect;
 
     friend class CMapScroll;

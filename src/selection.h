@@ -40,8 +40,7 @@ public:
     int getIndex(int i);
     void setIndex(int i, int index);
     void removeAt(int i);
-    void applyDelta(int dx, int dy);
-    void applyDelta(int dx, int dy, CScript *script);
+    void applyDelta(int dx, int dy, CScript *script=nullptr);
     void forget();
     void resync(const CActor & entry, int index);
     CActor & cacheAtIndex(int index);
