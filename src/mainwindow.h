@@ -63,6 +63,7 @@ private slots:
     void on_actionHelp_About_Qt_triggered();
     void on_actionEdit_Preferences_triggered();
     void on_actionHelp_About_triggered();
+    void on_actionMap_Clear_triggered();
 
 private:
     enum {

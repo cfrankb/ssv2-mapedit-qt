@@ -21,18 +21,18 @@
 0013 STAR4
 0014 LADDER
 0015 Algue
-0016 Eau de surface 
-0017 Eau de surface 2
-0018 Eau profonde
-0019 Deadly plant _1a
-001a Deadly plant _1b
+0016 "Eau de surface"
+0017 "Eau de surface 2"
+0018 "Eau profonde"
+0019 "Deadly plant _1a"
+001a "Deadly plant _1b"
 001b LFISH
 001c RFISH
 001d Tombe
 001e VCrea1
 001f VCrea2
 0020 !STOP
-0021 _LES VLAMITS II: (c) 1995 Francois Blanchette
+0021 "_LES VLAMITS II: (c) 1995 Francois Blanchette"
 0022 Water4
 0023 Water16
 0024 _Bloquer

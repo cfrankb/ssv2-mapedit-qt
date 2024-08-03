@@ -27,5 +27,6 @@
         <file>data/icons/prev.gif</file>
         <file>data/icons/save.gif</file>
         <file>data/icons/strawberrypntbrush.png</file>
+        <file>data/vlamits2.cfg</file>
     </qresource>
 </RCC>

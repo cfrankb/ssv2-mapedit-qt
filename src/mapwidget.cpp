@@ -16,7 +16,6 @@ CMapWidget::CMapWidget(QWidget *parent)
 {
     m_tiles = new CFrameSet;
     m_player = new CFrameSet;
-   // m_animator = new CAnimator();
     m_timer.setInterval(1000 / TICK_RATE);
     m_timer.start();
     preloadAssets();
@@ -49,6 +48,8 @@ void CMapWidget::setMap(CScript *pMap)
         m_tileset = m_map->tileset();
         loadTileset();
     }
+    m_selection->clear();
+    m_selectRect.show = false;
 }
 
 void CMapWidget::loadTileset()
@@ -104,7 +105,7 @@ void CMapWidget::paintEvent(QPaintEvent *)
 
     if (width !=0 && height != 0) {
         char t[80];
-        sprintf( t,"mx:%d my:%d", mx, my);
+        sprintf(t,"mx:%d my:%d", mx, my);
         drawFont(bitmap, 0,0, t, WHITE, true);
     }
 

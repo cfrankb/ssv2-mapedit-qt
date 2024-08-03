@@ -82,6 +82,7 @@
     <addaction name="actionMap_Add_new"/>
     <addaction name="actionMap_Insert"/>
     <addaction name="separator"/>
+    <addaction name="actionMap_Clear"/>
     <addaction name="actionMap_Delete"/>
    </widget>
    <addaction name="menuFIle"/>
@@ -364,6 +365,11 @@
   <action name="actionEdit_Preferences">
    <property name="text">
     <string>Preferences...</string>
+   </property>
+  </action>
+  <action name="actionMap_Clear">
+   <property name="text">
+    <string>Clear Map</string>
    </property>
   </action>
  </widget>

@@ -12,6 +12,7 @@ INCLUDEPATH += shared/ headers/ ./
 SOURCES += \
     actor.cpp \
     debug.cpp \
+    dlgeditentry.cpp \
     dlgeditmap.cpp \
     dlgselect.cpp \
     framemap.cpp \
@@ -21,6 +22,7 @@ SOURCES += \
     mapfile.cpp \
     mapscroll.cpp \
     mapwidget.cpp \
+    parser.cpp \
     script.cpp \
     scriptarch.cpp \
     selection.cpp \
@@ -37,6 +39,7 @@ HEADERS += \
     actor.h \
     debug.h \
     defs.h \
+    dlgeditentry.h \
     dlgeditmap.h \
     dlgselect.h \
     framemap.h \
@@ -45,6 +48,7 @@ HEADERS += \
     mapfile.h \
     mapscroll.h \
     mapwidget.h \
+    parser.h \
     script.h \
     scriptarch.h \
     selection.h \
@@ -63,6 +67,7 @@ HEADERS += \
     shared/qtgui/qthelper.h
 
 FORMS += \
+    dlgeditentry.ui \
     dlgeditmap.ui \
     dlgselect.ui \
     mainwindow.ui

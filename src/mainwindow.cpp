@@ -15,6 +15,7 @@
 #include "dlgselect.h"
 #include "debug.h"
 #include "dlgeditmap.h"
+#include "dlgeditentry.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -410,6 +411,8 @@ void MainWindow::showContextMenu(const QPoint & pos)
             menu.addAction(ui->actionEdit_Paste);
         } else {
             menu.addAction(ui->actionMap_Rename);
+            menu.addAction(ui->actionMap_Delete);
+            menu.addAction(ui->actionMap_Clear);
         }
     }
     if (!menu.isEmpty()) {
@@ -434,7 +437,7 @@ void MainWindow::dirtyMap()
 
 void MainWindow::on_actionEdit_Cut_triggered()
 {
-    CScript *map = m_doc.map();
+    CScript *map{m_doc.map()};
     if (!map) {
         return;
     }
@@ -461,7 +464,7 @@ void MainWindow::on_actionEdit_Cut_triggered()
 
 void MainWindow::on_actionEdit_Copy_triggered()
 {
-    CScript *map = m_doc.map();
+    CScript *map{m_doc.map()};
     if (!map) {
         return;
     }
@@ -481,11 +484,10 @@ void MainWindow::on_actionEdit_Copy_triggered()
 
 void MainWindow::on_actionEdit_Paste_triggered()
 {
-    CScript *map = m_doc.map();
+    CScript *map{m_doc.map()};
     if (!map) {
         return;
     }
-
     auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
     auto selection = widget->selection();
     if (m_clipboard.tileset == map->tileset()
@@ -505,7 +507,7 @@ void MainWindow::on_actionEdit_Paste_triggered()
 
 void MainWindow::on_actionEdit_Delete_triggered()
 {
-    CScript *map = m_doc.map();
+    CScript *map{m_doc.map()};
     if (!map) {
         return;
     }
@@ -607,6 +609,13 @@ void MainWindow::on_actionMap_Delete_triggered()
 {
     if (m_doc.size() != 0) {
         int i = m_doc.currentIndex();
+        QString msg {tr("Delete current map?")};
+        QMessageBox::StandardButton ret =
+            QMessageBox::warning(this, m_appName, msg  ,
+                                 QMessageBox::Yes | QMessageBox::No);
+        if (ret != QMessageBox::Yes) {
+            return;
+        }
         CScript *script = m_doc.removeAt(i);
         delete script;
         m_doc.setDirty(true);
@@ -634,8 +643,7 @@ void MainWindow::on_actionMap_Go_to_triggered()
 
 void MainWindow::on_actionMap_Rename_triggered()
 {
-
-    CScript *script = m_doc.map();
+    CScript *script{m_doc.map()};
     if (!script) {
         return;
     }
@@ -729,7 +737,37 @@ void MainWindow::on_actionHelp_About_triggered()
 
 void MainWindow::editEntry()
 {
-    CScript * script = m_doc.map();
-    CActor & entry = (*script)[m_entryID];
+    CScript *script{m_doc.map()};
+    CActor & entry{(*script)[m_entryID]};
+    CDlgEditEntry dlg;
+    dlg.setWindowTitle(tr("Edit Entry"));
+    dlg.init(entry, m_doc.map()->tileset());
+    if (dlg.exec() == QDialog::Accepted) {
+        CActor newValue{dlg.value()};
+        if (newValue != entry) {
+            m_doc.setDirty(true);
+            entry = newValue;
+        }
+    }
+}
+
+void MainWindow::on_actionMap_Clear_triggered()
+{
+    CScript *script{m_doc.map()};
+    if (!script) {
+        return;
+    }
+    QString msg {tr("Clear Map? Remove all the object?")};
+    QMessageBox::StandardButton ret =
+        QMessageBox::warning(this, m_appName, msg  ,
+          QMessageBox::Yes | QMessageBox::No);
+    if (ret == QMessageBox::Yes) {
+        auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+        auto selection = widget->selection();
+        selection->clear();
+        script->forget();
+        m_doc.setDirty(true);
+    }
+    updateMenus();
 }
 

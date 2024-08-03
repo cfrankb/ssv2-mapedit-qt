@@ -11,10 +11,10 @@
 0009 ISLE3
 000a ISLE4
 000b ISLE5
-000c Eau de surface 
+000c "Eau de surface"
 000d WaterUpx2
 000e WaterUpx4
-000f Eau profonde
+000f "Eau profonde"
 0010 Water4
 0011 Water16
 0012 ROCK
@@ -27,8 +27,8 @@
 0019 STAR4
 001a CLOUD
 001b Algue
-001c Deadly plant _1a
-001d Deadly plant _1b
+001c "Deadly plant _1a"
+001d "Deadly plant _1b"
 001e LFISH
 001f RFISH
 0020 Tombe
@@ -46,7 +46,7 @@
 002c TREE1
 002d TREE4
 002e TREE6
-002f _LES VLAMITS II: (c) 1995 Francois Blanchette
+002f "_LES VLAMITS II: (c) 1995 Francois Blanchette"
 
 [types]
 00 12 0000 # TASK_NONE        TYPE_FRUIT           \COCONUT
