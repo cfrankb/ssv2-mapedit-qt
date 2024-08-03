@@ -230,6 +230,7 @@ void MainWindow::updateMenus()
     ui->actionMap_First->setEnabled(index > 0);
     ui->actionMap_Last->setEnabled(index < m_doc.size() - 1);
     ui->actionMap_Rename->setEnabled(m_doc.size() != 0);
+    ui->actionMap_Clear->setEnabled(m_doc.size() > 1);
 }
 
 void MainWindow::setStatus(const QString msg)
@@ -403,6 +404,9 @@ void MainWindow::showContextMenu(const QPoint & pos)
             menu.addAction(ui->actionEdit_Cut);
             menu.addAction(ui->actionEdit_Copy);
             menu.addAction(ui->actionEdit_Delete);
+            menu.addSeparator();
+            menu.addAction(ui->actionEdit_Move_to_back);
+            menu.addAction(ui->actionEdit_Move_to_front);
         }
         m_entryID = id;
     } else if (id == INVALID)  {
@@ -413,6 +417,8 @@ void MainWindow::showContextMenu(const QPoint & pos)
             menu.addAction(ui->actionMap_Rename);
             menu.addAction(ui->actionMap_Delete);
             menu.addAction(ui->actionMap_Clear);
+            menu.addSeparator();
+            menu.addAction(ui->actionEdit_Insert);
         }
     }
     if (!menu.isEmpty()) {
@@ -626,7 +632,7 @@ void MainWindow::on_actionMap_Delete_triggered()
 
 void MainWindow::on_actionMap_Go_to_triggered()
 {
-    int currIndex = m_doc.currentIndex();
+    int currIndex{m_doc.currentIndex()};
     if (m_doc.size() != 0) {
         CDlgSelect dlg;
         dlg.setWindowTitle(tr("Go to Map ..."));
@@ -769,5 +775,87 @@ void MainWindow::on_actionMap_Clear_triggered()
         m_doc.setDirty(true);
     }
     updateMenus();
+}
+
+
+void MainWindow::on_actionEdit_Move_to_back_triggered()
+{
+    CScript *map{m_doc.map()};
+    if (!map) {
+        return;
+    }
+    auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+    auto selection = widget->selection();
+    auto size = selection->getSize();
+    if (size != 0) {
+        // remove selection at current positon
+        for (int i=0; i < size; ++i){
+            auto id = selection->getIndex(i);
+            map->removeAt(id);
+            for (int j = i + 1; j < size; ++j) {
+                auto v = selection->getIndex(j);
+                selection->setIndex(j, v > id ? --v: v);
+            }
+        }
+        // move to the back
+        for (int i=0; i < size; ++i){
+            const CActor & entry = selection->cacheAtIndex(i);
+            map->insertAt(i, entry);
+        }
+        selection->clear();
+        m_doc.setDirty(true);
+    }
+}
+
+
+void MainWindow::on_actionEdit_Move_to_front_triggered()
+{
+    CScript *map{m_doc.map()};
+    if (!map) {
+        return;
+    }
+    auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+    auto selection = widget->selection();
+    auto size = selection->getSize();
+    if (size != 0) {
+        // remove selection at current positon
+        for (int i=0; i < size; ++i){
+            auto id = selection->getIndex(i);
+            map->removeAt(id);
+            for (int j = i + 1; j < size; ++j) {
+                auto v = selection->getIndex(j);
+                selection->setIndex(j, v > id ? --v: v);
+            }
+        }
+        // move to the front
+        for (int i=0; i < size; ++i){
+            const CActor & entry = selection->cacheAtIndex(i);
+            map->add(entry);
+        }
+        selection->clear();
+        m_doc.setDirty(true);
+    }
+}
+
+
+void MainWindow::on_actionEdit_Insert_triggered()
+{
+    if (!m_doc.map()) {
+        return;
+    }
+    CScript *script{m_doc.map()};
+    CActor entry;
+    entry.x=m_scrollArea->topX() + 2;
+    entry.y=m_scrollArea->topY() + 2;
+    CDlgEditEntry dlg;
+    dlg.setWindowTitle(tr("Edit Entry"));
+    dlg.init(entry, m_doc.map()->tileset());
+    if (dlg.exec() == QDialog::Accepted) {
+        CActor newValue{dlg.value()};
+        if (newValue != entry) {
+            m_doc.setDirty(true);
+            script->add(newValue);
+        }
+    }
 }
 

@@ -91,7 +91,7 @@ void CDlgEditEntry::updateImage()
     if (frame) {
         ui->sImage->setPixmap(frame2pixmap(*frame));
     } else {
-        ui->sImage->setText(tr("Not available"));
+        ui->sImage->setText(tr("Image Not\navailable"));
     }
     m_config.images.count(m_entry.imageId) > 0 ?
         ui->sImageName->setText(m_config.images[m_entry.imageId].c_str()) :
@@ -100,14 +100,14 @@ void CDlgEditEntry::updateImage()
 
 void CDlgEditEntry::on_btnPrev_clicked()
 {
-    decltype(m_entry.imageId) t = m_entry.imageId;
+    auto t = m_entry.imageId;
     m_entry.imageId = t ? --t : m_tiles->getSize() - 1;
     updateImage();
 }
 
 void CDlgEditEntry::on_btnNext_clicked()
 {
-    decltype(m_entry.imageId) t = m_entry.imageId;
+    auto t = m_entry.imageId;
     m_entry.imageId = t >= m_tiles->getSize() - 1  ? 0 : ++t;
     updateImage();
 }

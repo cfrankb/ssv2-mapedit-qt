@@ -12,6 +12,8 @@ class CMapScroll : public QAbstractScrollArea
     Q_OBJECT
 public:
     explicit CMapScroll(QWidget *parent = nullptr);
+    int topX();
+    int topY();
 
 signals:
     void statusChanged(const QString str);
@@ -32,8 +34,6 @@ protected:
     virtual void keyReleaseEvent(QKeyEvent* event) override;
     void updateScrollbars();
     void topXY(int &x, int &y);
-    int topX();
-    int topY();
     void keyReflector(uint32_t key, uint8_t state);
 
     using mouse_t = struct

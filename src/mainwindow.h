@@ -50,6 +50,10 @@ private slots:
     void on_actionEdit_Copy_triggered();
     void on_actionEdit_Paste_triggered();
     void on_actionEdit_Delete_triggered();
+    void on_actionEdit_Insert_triggered();
+    void on_actionEdit_Move_to_back_triggered();
+    void on_actionEdit_Move_to_front_triggered();
+    void on_actionEdit_Preferences_triggered();
     void on_actionMap_Previous_triggered();
     void on_actionMap_Next_triggered();
     void on_actionMap_First_triggered();
@@ -60,10 +64,9 @@ private slots:
     void on_actionMap_Go_to_triggered();
     void on_actionMap_Rename_triggered();
     void on_actionMap_Move_triggered();
-    void on_actionHelp_About_Qt_triggered();
-    void on_actionEdit_Preferences_triggered();
-    void on_actionHelp_About_triggered();
     void on_actionMap_Clear_triggered();
+    void on_actionHelp_About_Qt_triggered();
+    void on_actionHelp_About_triggered();
 
 private:
     enum {

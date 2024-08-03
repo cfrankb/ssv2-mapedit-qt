@@ -58,6 +58,11 @@
     <addaction name="actionEdit_Paste"/>
     <addaction name="actionEdit_Delete"/>
     <addaction name="separator"/>
+    <addaction name="actionEdit_Insert"/>
+    <addaction name="separator"/>
+    <addaction name="actionEdit_Move_to_back"/>
+    <addaction name="actionEdit_Move_to_front"/>
+    <addaction name="separator"/>
     <addaction name="actionEdit_Preferences"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
@@ -182,6 +187,9 @@
   <action name="actionHelp_About_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+   <property name="statusTip">
+    <string>About this application</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::AboutQtRole</enum>
@@ -345,6 +353,9 @@
    <property name="text">
     <string>Go to Map</string>
    </property>
+   <property name="statusTip">
+    <string>Go to anoher map</string>
+   </property>
   </action>
   <action name="actionMap_Move">
    <property name="text">
@@ -370,6 +381,33 @@
   <action name="actionMap_Clear">
    <property name="text">
     <string>Clear Map</string>
+   </property>
+   <property name="statusTip">
+    <string>Clear the entire map</string>
+   </property>
+  </action>
+  <action name="actionEdit_Move_to_back">
+   <property name="text">
+    <string>Move to back</string>
+   </property>
+   <property name="statusTip">
+    <string>Move selected object to the back</string>
+   </property>
+  </action>
+  <action name="actionEdit_Move_to_front">
+   <property name="text">
+    <string>Move to front</string>
+   </property>
+   <property name="statusTip">
+    <string>Move selected objects to the front</string>
+   </property>
+  </action>
+  <action name="actionEdit_Insert">
+   <property name="text">
+    <string>Insert</string>
+   </property>
+   <property name="statusTip">
+    <string>Insert New Object on the map</string>
    </property>
   </action>
  </widget>
