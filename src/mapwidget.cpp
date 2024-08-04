@@ -52,7 +52,7 @@ void CMapWidget::setMap(CScript *pMap)
     m_selectRect.show = false;
 }
 
-void CMapWidget::loadTileset()
+bool CMapWidget::loadTileset()
 {
     QString filename{QString(":/data/%1.obl").arg(m_tileset.c_str())};
     QFileWrap file;
@@ -60,6 +60,11 @@ void CMapWidget::loadTileset()
         m_tiles->read(file);
         file.close();
         qDebug("tiles: %d\n", m_tiles->getSize());
+        return true;
+    } else {
+        qDebug("failed to read: %s", filename.toStdString().c_str());
+        m_tiles->forget();
+        return false;
     }
 }
 
@@ -75,6 +80,7 @@ void CMapWidget::setAnimate(bool val)
 
 void CMapWidget::paintEvent(QPaintEvent *)
 {
+    char t[80];
     const QSize widgetSize = size();
     const int width = widgetSize.width() / 2 + FNT_BLOCK_SIZE;
     const int height = widgetSize.height() / 2 + FNT_BLOCK_SIZE;
@@ -86,7 +92,10 @@ void CMapWidget::paintEvent(QPaintEvent *)
     // draw screen
     CFrame bitmap(width, height);
 
-    if (m_map) {
+    if (m_map && !m_tiles->getSize()) {
+        sprintf(t, "failed to load: %s", m_tileset.c_str());
+        drawFont(bitmap, 0,0, t, WHITE, true );
+    } else if (m_map) {
         drawScreen(bitmap);
         if (m_showGrid) {
            // drawGrid(bitmap);
@@ -99,14 +108,13 @@ void CMapWidget::paintEvent(QPaintEvent *)
         if (m_selectRect.show) {
             drawSelectionRect(bitmap, m_selectRect.x, m_selectRect.y, m_selectRect.dx, m_selectRect.dy, color);
         }
+
+        if (width !=0 && height != 0) {
+            sprintf(t,"mx:%d my:%d", mx, my);
+            drawFont(bitmap, 0,0, t, WHITE, true);
+        }
     } else {
         drawCheckers(bitmap);
-    }
-
-    if (width !=0 && height != 0) {
-        char t[80];
-        sprintf(t,"mx:%d my:%d", mx, my);
-        drawFont(bitmap, 0,0, t, WHITE, true);
     }
 
     // show the screen
@@ -427,4 +435,3 @@ void CMapWidget::drawCheckers(CFrame &bitmap)
         }
     }
 }
-

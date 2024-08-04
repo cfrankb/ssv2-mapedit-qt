@@ -257,6 +257,12 @@ void CMapScroll::keyPressEvent(QKeyEvent* event)
         horizontalScrollBar()->setValue(0);
         verticalScrollBar()->setValue(0);
     }
+
+    if (key == Qt::Key_Escape) {
+        CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
+        glw->selection()->clear();
+        glw->hideRect();
+    }
 }
 
 void CMapScroll::keyReleaseEvent(QKeyEvent* event)

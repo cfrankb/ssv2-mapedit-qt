@@ -848,7 +848,7 @@ void MainWindow::on_actionEdit_Insert_triggered()
     entry.x=m_scrollArea->topX() + 2;
     entry.y=m_scrollArea->topY() + 2;
     CDlgEditEntry dlg;
-    dlg.setWindowTitle(tr("Edit Entry"));
+    dlg.setWindowTitle(tr("Add New Entry"));
     dlg.init(entry, m_doc.map()->tileset());
     if (dlg.exec() == QDialog::Accepted) {
         CActor newValue{dlg.value()};

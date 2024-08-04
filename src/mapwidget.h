@@ -71,7 +71,7 @@ protected:
     };
 
     void preloadAssets();
-    void loadTileset();
+    bool loadTileset();
     inline void drawScreen(CFrame &bitmap);
     inline void drawFont(CFrame & frame, int x, int y, const char *text, const uint32_t color, const bool alpha);
     //inline void drawGrid(CFrame & bitmap);
