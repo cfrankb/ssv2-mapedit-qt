@@ -45,6 +45,8 @@ public:
     CScript *removeAt(int i);
     void insertAt(int i, CScript *script);
     const char *lastError();
+    const char *gameID();
+    void setGameID(const char *id);
 
 private:
     enum
@@ -54,11 +56,13 @@ private:
         INDEXPTR_OFFSET = 8,
         COUNT_OFFSET = 6,
         SIGNATURE_SIZE = 4,
+        GAMEID_SIZE = 4,
     };
     constexpr static const char SIGNATURE[]{"SCRX"};
     std::string m_lastError;
 
 protected:
+    char m_gameID[GAMEID_SIZE];
     uint32_t m_size;
     uint32_t m_max;
     std::unique_ptr<CScript *[]> m_scripts;

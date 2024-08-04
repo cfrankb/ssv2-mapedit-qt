@@ -20,13 +20,15 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
-#include <QDebug>
+
+static constexpr const char DEFAULT_GAMEID[] = {'?', '?', '?', '?'};
 
 CScriptArch::CScriptArch()
 {
     m_size = 0;
     m_max = GROW_BY;
     m_scripts = std::make_unique<CScript *[]>(m_max);
+    memcpy(m_gameID, DEFAULT_GAMEID, sizeof(DEFAULT_GAMEID));
 }
 
 CScriptArch::~CScriptArch()
@@ -55,7 +57,7 @@ bool CScriptArch::read(const char *filename)
         if (memcmp(signature, SIGNATURE, sizeof(signature)) != 0)
         {
             m_lastError = "invalid signature";
-            qDebug("invalid signature: %s\n", signature);
+            printf("invalid signature: %s\n", signature);
             fclose(sfile);
             return false;
         }
@@ -68,14 +70,13 @@ bool CScriptArch::read(const char *filename)
         }
         fread(&count, sizeof(count), 1, sfile);
         fread(&indexPtr, sizeof(indexPtr), 1, sfile);
+        fread(m_gameID, sizeof(m_gameID), 1, sfile);
 
-        //qDebug("count: %d\n", count);
-        // read index
+        //  read index
         m_size = count;
         m_max = m_size;
         uint32_t *index = new uint32_t[m_size];
         fseek(sfile, indexPtr, SEEK_SET);
-        //qDebug("indexPtr: %.8x\n", indexPtr);
         fread(index, sizeof(uint32_t) * m_size, 1, sfile);
         m_scripts = std::make_unique<CScript *[]>(m_size);
 
@@ -83,13 +84,14 @@ bool CScriptArch::read(const char *filename)
         for (int i = 0; i < count; ++i)
         {
             m_scripts[i] = new CScript;
-            //qDebug("--> script:%d [index: 0x%.8x]\n", i, index[i]);
             fseek(sfile, index[i], SEEK_SET);
             m_scripts[i]->read(sfile);
         }
         delete[] index;
         fclose(sfile);
-    } else {
+    }
+    else
+    {
         m_lastError = "can't open file";
     }
     return sfile != nullptr;
@@ -109,6 +111,7 @@ bool CScriptArch::write(const char *filename)
         fwrite(&m_size, sizeof(uint16_t), 1, tfile);
         uint32_t tmp = 0;
         fwrite(&tmp, sizeof(tmp), 1, tfile);
+        fwrite(m_gameID, sizeof(m_gameID), 1, tfile);
 
         uint32_t *index = new uint32_t[m_size];
         printf("count:%d\n", m_size);
@@ -285,10 +288,20 @@ void CScriptArch::insertAt(int i, CScript *script)
         m_scripts.swap(tmp);
     }
 
-    for (int j=m_size; j > i; --j) {
-        m_scripts[j] = m_scripts[j-1];
+    for (int j = m_size; j > i; --j)
+    {
+        m_scripts[j] = m_scripts[j - 1];
     }
     m_scripts[i] = script;
     ++m_size;
 }
 
+const char *CScriptArch::gameID()
+{
+    return m_gameID;
+}
+
+void CScriptArch::setGameID(const char *id)
+{
+    memcpy(m_gameID, id, sizeof(m_gameID));
+}

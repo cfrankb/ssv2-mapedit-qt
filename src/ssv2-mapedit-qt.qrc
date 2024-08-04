@@ -1,14 +1,14 @@
 <RCC>
     <qresource prefix="/">
         <file>data/bitfont.bin</file>
-        <file>data/caves.obl</file>
-        <file>data/caves.stx</file>
-        <file>data/jungle.obl</file>
-        <file>data/jungle.stx</file>
-        <file>data/ocean.obl</file>
-        <file>data/ocean.stx</file>
-        <file>data/oldvla.obl</file>
-        <file>data/oldvla.stx</file>
+        <file>data/vl2caves.obl</file>
+        <file>data/vl2caves.stx</file>
+        <file>data/vl2jungle.obl</file>
+        <file>data/vl2jungle.stx</file>
+        <file>data/vl2ocean.obl</file>
+        <file>data/vl2ocean.stx</file>
+        <file>data/vl2oldvla.obl</file>
+        <file>data/vl2oldvla.stx</file>
         <file>data/annie.obl</file>
         <file>data/icons/colorpicker.png</file>
         <file>data/icons/CS3MapEdit-icon.png</file>

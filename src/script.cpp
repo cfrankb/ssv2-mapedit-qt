@@ -19,13 +19,13 @@
 #include "script.h"
 #include "defs.h"
 #include "actor.h"
-#include <QDebug>
 
 CScript::CScript()
 {
     m_script = nullptr;
     m_size = 0;
     m_max = m_size;
+    m_rgbaColor = BLACK;
 }
 
 CScript::CScript(std::unique_ptr<CActor[]> &script, uint32_t size)
@@ -34,6 +34,7 @@ CScript::CScript(std::unique_ptr<CActor[]> &script, uint32_t size)
     m_script = std::move(script);
     m_size = size;
     m_max = m_size;
+    m_rgbaColor = BLACK;
 }
 
 CScript::~CScript()
@@ -43,9 +44,10 @@ CScript::~CScript()
 
 void CScript::forget()
 {
-    if (m_script && m_script.get()) {
-        auto ptr = m_script.release();        // pointer to no-longer-managed object
-        delete []ptr;
+    if (m_script && m_script.get())
+    {
+        auto ptr = m_script.release(); // pointer to no-longer-managed object
+        delete[] ptr;
     }
     m_script = nullptr;
     m_size = 0;
@@ -55,7 +57,10 @@ void CScript::forget()
 bool CScript::write(FILE *tfile)
 {
     // write entry count
-    fwrite(&m_size, sizeof(m_size), 1, tfile);
+    fwrite(&m_size, sizeof(uint16_t), 1, tfile);
+    uint16_t version = VERSION;
+    fwrite(&version, sizeof(uint16_t), 1, tfile);
+    fwrite(&m_rgbaColor, sizeof(m_rgbaColor), 1, tfile);
 
     // save tileset name
     char tileset[TILESET_NAME_MAX];
@@ -86,7 +91,15 @@ bool CScript::read(FILE *sfile)
     forget();
 
     // read entry count
-    fread(&m_size, sizeof(m_size), 1, sfile);
+    m_size = 0;
+    uint16_t version = 0;
+    fread(&m_size, sizeof(uint16_t), 1, sfile);
+    fread(&version, sizeof(uint16_t), 1, sfile);
+    fread(&m_rgbaColor, sizeof(m_rgbaColor), 1, sfile);
+    if (version != VERSION)
+    {
+        return false;
+    }
     m_max = m_size;
 
     // read tileset name
@@ -120,8 +133,16 @@ bool CScript::fromMemory(const uint8_t *data)
         memcpy(p, __m__, __u__);
         p += __u__;
     };
-    memread(&m_size, sizeof(m_size));
+    uint16_t version = 0;
+    m_size = 0;
+    memread(&m_size, sizeof(uint16_t));
+    memread(&version, sizeof(uint16_t));
+    memread(&m_rgbaColor, sizeof(m_rgbaColor));
     m_max = m_size;
+    if (version != VERSION)
+    {
+        return false;
+    }
 
     // read tileset name
     char tileset[TILESET_NAME_MAX + 1]{};
@@ -267,7 +288,8 @@ void CScript::shift(int aim)
     for (uint32_t i = 0; i < m_size; ++i)
     {
         CActor &entry{s[i]};
-        switch (aim) {
+        switch (aim)
+        {
         case UP:
             --entry.y;
             break;
@@ -283,3 +305,12 @@ void CScript::shift(int aim)
     }
 }
 
+uint32_t CScript::rgbaColor()
+{
+    return m_rgbaColor;
+}
+
+void CScript::setRgbaColor(uint32_t color)
+{
+    m_rgbaColor = color;
+}

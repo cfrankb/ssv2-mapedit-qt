@@ -104,8 +104,15 @@ public:
     int findPlayerIndex() const;
     int countType(uint8_t type) const;
     void sort();
+    uint32_t rgbaColor();
+    void setRgbaColor(uint32_t color);
+    enum
+    {
+        TILESET_NAME_MAX = 12,
+    };
 
 private:
+    uint32_t m_rgbaColor;
     std::string m_name;
     std::string m_tileset;
     std::unique_ptr<CActor[]> m_script;
@@ -113,9 +120,11 @@ private:
     uint32_t m_max;
     enum
     {
-        TILESET_NAME_MAX = 8,
         SCRIPTNAME_MAX = 255,
-        GROW_BY = 16
+        GROW_BY = 16,
+        VERSION = 0,
+        ALPHA = 0xff000000,
+        BLACK = 0x000000 | ALPHA
     };
     inline void growArray();
 };
