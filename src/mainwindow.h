@@ -36,16 +36,17 @@ private slots:
     void setStatus(const QString str);
     void onLeftClick(int, int);
     void showContextMenu(const QPoint &pos);
-    void editEntry();
     void shiftUp();
     void shiftDown();
     void shiftLeft();
     void shiftRight();
+    void updateMenus();
     void on_actionFile_Open_triggered();
     void on_actionFile_Save_triggered();
     void on_actionFile_New_File_triggered();
     void on_actionFile_Save_as_triggered();
     void on_actionExport_Map_Object_List_triggered();
+    void on_actionEdit_EditObject_triggered();
     void on_actionEdit_Cut_triggered();
     void on_actionEdit_Copy_triggered();
     void on_actionEdit_Paste_triggered();
@@ -67,11 +68,12 @@ private slots:
     void on_actionMap_Clear_triggered();
     void on_actionHelp_About_Qt_triggered();
     void on_actionHelp_About_triggered();
+    void on_actionMap_Sort_Objects_triggered();
 
 private:
-    enum {
+    enum:int {
         MAX_RECENT_FILES = 8,
-        MAX_AXIS = 256,
+        MAX_AXIS = 255,
         INVALID = -1,
         FNT_BLOCK_SIZE = 8,
         SCREEN_PARTION = 2 * FNT_BLOCK_SIZE,
@@ -100,7 +102,6 @@ private:
     void warningMessage(const QString & message);
     void setDocument(const QString & fileName);
     bool updateTitle();
-    void updateMenus();
     void initFileMenu();
     void reloadRecentFileActions();
     void initToolBar();

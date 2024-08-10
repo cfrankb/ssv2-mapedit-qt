@@ -26,7 +26,7 @@ private slots:
 private:
     enum {
         MAX_NAME = 254,
-        MAX_TILESET = 8,
+        MAX_TILESET_NAME = 12,
     };
 
     Ui::CDlgEditMap *ui;

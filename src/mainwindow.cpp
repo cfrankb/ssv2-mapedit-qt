@@ -16,6 +16,7 @@
 #include "debug.h"
 #include "dlgeditmap.h"
 #include "dlgeditentry.h"
+#include "dlgabout.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -23,12 +24,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     initFileMenu();
-    setWindowTitle(tr("ssv2 MapEditor"));
+    setWindowTitle(m_appName);
     m_scrollArea = new CMapScroll;
     setCentralWidget(m_scrollArea);
 
     connect(m_scrollArea, SIGNAL(statusChanged(QString)), this, SLOT(setStatus(QString)));
     connect(m_scrollArea, SIGNAL(leftClickedAt(int, int)), this, SLOT(onLeftClick(int, int)));
+    connect(m_scrollArea, SIGNAL(selectionChanged()), this, SLOT(updateMenus()));
     connect(this, SIGNAL(mapChanged(CScript *)), m_scrollArea, SLOT(newMap(CScript *)));
     connect(m_scrollArea, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenu(const QPoint &)));
@@ -230,7 +232,20 @@ void MainWindow::updateMenus()
     ui->actionMap_First->setEnabled(index > 0);
     ui->actionMap_Last->setEnabled(index < m_doc.size() - 1);
     ui->actionMap_Rename->setEnabled(m_doc.size() != 0);
-    ui->actionMap_Clear->setEnabled(m_doc.size() > 1);
+    ui->actionMap_Clear->setEnabled(m_doc.size() !=0);
+    ui->actionMap_Sort_Objects->setEnabled(m_doc.size() !=0);
+
+    auto widget = reinterpret_cast<CMapWidget*>(m_scrollArea->viewport());
+    auto selection = widget->selection();
+    ui->actionEdit_Copy->setEnabled(selection->getSize() != 0);
+    ui->actionEdit_Cut->setEnabled(selection->getSize() != 0);
+    ui->actionEdit_Delete->setEnabled(selection->getSize() != 0);
+    ui->actionEdit_Move_to_back->setEnabled(selection->getSize() != 0);
+    ui->actionEdit_Move_to_front->setEnabled(selection->getSize() != 0);
+    ui->actionEdit_EditObject->setEnabled(selection->getSize() != 0);
+    ui->actionEdit_Paste->setEnabled(m_clipboard.selected.size() != 0
+                                     && m_doc.map() != nullptr
+                                     && m_clipboard.tileset == m_doc.map()->tileset())  ;
 }
 
 void MainWindow::setStatus(const QString msg)
@@ -312,21 +327,6 @@ void MainWindow::initToolBar()
     ui->toolBar->addAction(ui->actionMap_Add_new);
     ui->toolBar->addAction(ui->actionMap_Delete);
 
-    /*ui->toolBar->addSeparator();
-    ui->toolBar->addAction(ui->actionTools_Paint);
-    ui->toolBar->addAction(ui->actionTools_Erase);
-    ui->toolBar->addAction(ui->actionTools_Select);
-
-    m_toolGroup = new QActionGroup(this);
-    m_toolGroup->addAction(ui->actionTools_Paint);
-    m_toolGroup->addAction(ui->actionTools_Erase);
-    m_toolGroup->addAction(ui->actionTools_Select);
-    m_toolGroup->setExclusive(true);
-    ui->actionTools_Paint->setChecked(true);
-    ui->actionTools_Paint->setData(TOOL_PAINT);
-    ui->actionTools_Erase->setData(TOOL_ERASE);
-    ui->actionTools_Select->setData(TOOL_SELECT);*/
-
     QAction *actionToolBar = ui->toolBar->toggleViewAction();
     actionToolBar->setText(tr("ToolBar"));
     actionToolBar->setStatusTip(tr("Show or hide toolbar"));
@@ -366,7 +366,7 @@ void MainWindow::on_actionFile_Save_as_triggered()
 }
 
 void MainWindow::onLeftClick(int x, int y) {
-    if ((x >= 0) && (y >= 0) && (x < MAX_AXIS) && (y < MAX_AXIS))
+    if ((x >= 0) && (y >= 0) && (x <= MAX_AXIS) && (y <= MAX_AXIS))
     {
         CScript *map = m_doc.map();
         if (!map) {
@@ -390,10 +390,7 @@ void MainWindow::showContextMenu(const QPoint & pos)
     }
     else if (id != INVALID)
     {
-        QAction *actionSetAttr = new QAction(tr("Edit"), &menu);
-        connect(actionSetAttr, SIGNAL(triggered()),
-                this, SLOT(editEntry()));
-        menu.addAction(actionSetAttr);
+        menu.addAction(ui->actionEdit_EditObject);
         auto selection = glw->selection();
         if (!selection->contains(id)) {
             selection->clear();
@@ -414,6 +411,7 @@ void MainWindow::showContextMenu(const QPoint & pos)
             && map->tileset() == m_clipboard.tileset) {
             menu.addAction(ui->actionEdit_Paste);
         } else {
+            menu.addAction(ui->actionMap_Sort_Objects);
             menu.addAction(ui->actionMap_Rename);
             menu.addAction(ui->actionMap_Delete);
             menu.addAction(ui->actionMap_Clear);
@@ -421,6 +419,7 @@ void MainWindow::showContextMenu(const QPoint & pos)
             menu.addAction(ui->actionEdit_Insert);
         }
     }
+    updateMenus();
     if (!menu.isEmpty()) {
         menu.exec(m_scrollArea->mapToGlobal(pos));
     }
@@ -432,7 +431,14 @@ void MainWindow::on_actionExport_Map_Object_List_triggered()
     if (!map) {
         return;
     }
-    debugLevel("debug.log", map);
+    QString fileFilter = tr("Log files (*.h)");
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export..."), "", fileFilter);
+    if (!fileName.isEmpty()) {
+        if (!fileName.endsWith(".log", Qt::CaseInsensitive)) {
+            fileName.append(".log");
+        }
+        debugLevel(fileName.toStdString().c_str(), map);
+    }
 }
 
 void MainWindow::dirtyMap()
@@ -738,23 +744,8 @@ void MainWindow::on_actionEdit_Preferences_triggered()
 
 void MainWindow::on_actionHelp_About_triggered()
 {
-
-}
-
-void MainWindow::editEntry()
-{
-    CScript *script{m_doc.map()};
-    CActor & entry{(*script)[m_entryID]};
-    CDlgEditEntry dlg;
-    dlg.setWindowTitle(tr("Edit Entry"));
-    dlg.init(entry, m_doc.map()->tileset());
-    if (dlg.exec() == QDialog::Accepted) {
-        CActor newValue{dlg.value()};
-        if (newValue != entry) {
-            m_doc.setDirty(true);
-            entry = newValue;
-        }
-    }
+    DlgAbout dlg;
+    dlg.exec();
 }
 
 void MainWindow::on_actionMap_Clear_triggered()
@@ -845,8 +836,9 @@ void MainWindow::on_actionEdit_Insert_triggered()
     }
     CScript *script{m_doc.map()};
     CActor entry;
-    entry.x=m_scrollArea->topX() + 2;
-    entry.y=m_scrollArea->topY() + 2;
+    memset(&entry,0, sizeof(entry));
+    entry.x=std::min(m_scrollArea->topX() + 2, static_cast<int>(MAX_AXIS));
+    entry.y=std::min(m_scrollArea->topY() + 2, static_cast<int>(MAX_AXIS));
     CDlgEditEntry dlg;
     dlg.setWindowTitle(tr("Add New Entry"));
     dlg.init(entry, m_doc.map()->tileset());
@@ -859,3 +851,39 @@ void MainWindow::on_actionEdit_Insert_triggered()
     }
 }
 
+
+void MainWindow::on_actionMap_Sort_Objects_triggered()
+{
+    if (!m_doc.map()) {
+        return;
+    }
+    QString msg {tr("Sort current map?")};
+    QMessageBox::StandardButton ret =
+        QMessageBox::warning(this, m_appName, msg  ,
+                             QMessageBox::Yes | QMessageBox::No);
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
+    auto widget{reinterpret_cast<CMapWidget*>(m_scrollArea->viewport())};
+    auto selection{widget->selection()};
+    selection->clear();
+    CScript *script{m_doc.map()};
+    script->sort();
+}
+
+
+void MainWindow::on_actionEdit_EditObject_triggered()
+{
+    CScript *script{m_doc.map()};
+    CActor & entry{(*script)[m_entryID]};
+    CDlgEditEntry dlg;
+    dlg.setWindowTitle(tr("Edit Object"));
+    dlg.init(entry, m_doc.map()->tileset());
+    if (dlg.exec() == QDialog::Accepted) {
+        CActor newValue{dlg.value()};
+        if (newValue != entry) {
+            m_doc.setDirty(true);
+            entry = newValue;
+        }
+    }
+}

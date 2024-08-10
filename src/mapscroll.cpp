@@ -85,6 +85,7 @@ void CMapScroll::mousePressEvent(QMouseEvent *event)
                 glw->select(id);
             }
         }
+        emit selectionChanged();
     }
 }
 
@@ -97,6 +98,7 @@ void CMapScroll::mouseReleaseEvent(QMouseEvent *event)
         if (m_mouse.lButton) {
             glw->collectRect();
             glw->hideRect();
+            emit selectionChanged();
         }
         m_mouse.lButton = false;
         break;
@@ -262,6 +264,7 @@ void CMapScroll::keyPressEvent(QKeyEvent* event)
         CMapWidget *glw = dynamic_cast<CMapWidget *>(viewport());
         glw->selection()->clear();
         glw->hideRect();
+        emit selectionChanged();
     }
 }
 

@@ -16,7 +16,7 @@ CDlgEditMap::CDlgEditMap(QWidget *parent)
     this->setMinimumHeight(size.height());
     this->setMinimumWidth(size.width());
     ui->eName->setMaxLength(MAX_NAME);
-    ui->eTileset->setMaxLength(MAX_TILESET);
+    ui->eTileset->setMaxLength(MAX_TILESET_NAME);
     ui->eName->setFocus();
     validateFields();
 }

@@ -12,6 +12,7 @@ INCLUDEPATH += shared/ headers/ ./
 SOURCES += \
     actor.cpp \
     debug.cpp \
+    dlgabout.cpp \
     dlgeditentry.cpp \
     dlgeditmap.cpp \
     dlgselect.cpp \
@@ -37,8 +38,10 @@ SOURCES += \
 
 HEADERS += \
     actor.h \
+    app_version.h \
     debug.h \
     defs.h \
+    dlgabout.h \
     dlgeditentry.h \
     dlgeditmap.h \
     dlgselect.h \
@@ -67,6 +70,7 @@ HEADERS += \
     shared/qtgui/qthelper.h
 
 FORMS += \
+    dlgabout.ui \
     dlgeditentry.ui \
     dlgeditmap.ui \
     dlgselect.ui \
@@ -81,6 +85,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
+    mapedit.qrc \
     ssv2-mapedit-qt.qrc
 
 

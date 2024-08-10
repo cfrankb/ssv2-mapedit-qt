@@ -16,6 +16,7 @@ public:
     int topY();
 
 signals:
+    void selectionChanged();
     void statusChanged(const QString str);
     void leftClickedAt(int x, int y);
 

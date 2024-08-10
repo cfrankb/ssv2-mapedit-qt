@@ -58,6 +58,7 @@
     <addaction name="actionEdit_Paste"/>
     <addaction name="actionEdit_Delete"/>
     <addaction name="separator"/>
+    <addaction name="actionEdit_EditObject"/>
     <addaction name="actionEdit_Insert"/>
     <addaction name="separator"/>
     <addaction name="actionEdit_Move_to_back"/>
@@ -84,6 +85,7 @@
     <addaction name="actionMap_Go_to"/>
     <addaction name="separator"/>
     <addaction name="actionMap_Rename"/>
+    <addaction name="actionMap_Sort_Objects"/>
     <addaction name="actionMap_Add_new"/>
     <addaction name="actionMap_Insert"/>
     <addaction name="separator"/>
@@ -408,6 +410,22 @@
    </property>
    <property name="statusTip">
     <string>Insert New Object on the map</string>
+   </property>
+  </action>
+  <action name="actionMap_Sort_Objects">
+   <property name="text">
+    <string>Sort Objects</string>
+   </property>
+   <property name="statusTip">
+    <string>Sort the objects on the current map. Placing background objects at the bottom of the stack.</string>
+   </property>
+  </action>
+  <action name="actionEdit_EditObject">
+   <property name="text">
+    <string>Edit Object</string>
+   </property>
+   <property name="statusTip">
+    <string>Edit/Modify selected objec or objects.</string>
    </property>
   </action>
  </widget>
