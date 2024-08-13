@@ -161,12 +161,11 @@ void CScriptArch::forget()
 {
     if (m_scripts)
     {
-        for (uint32_t i = 0; i < m_size; ++i)
-        {
-            delete m_scripts[i];
-        }
+        auto p = m_scripts.get();
+        m_scripts.release();
+        delete[] p;
+        m_scripts = nullptr;
     }
-    m_scripts = nullptr;
     m_size = 0;
     m_max = 0;
 }

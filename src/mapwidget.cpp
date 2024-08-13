@@ -44,9 +44,11 @@ CMapWidget::~CMapWidget()
 void CMapWidget::setMap(CScript *pMap)
 {
     m_map = pMap;
-    if (m_map->tileset() != m_tileset) {
+    if (m_map != nullptr && m_map->tileset() != m_tileset) {
         m_tileset = m_map->tileset();
         loadTileset();
+    } else if (m_map == nullptr) {
+        m_tileset = "";
     }
     m_selection->clear();
     m_selectRect.show = false;
@@ -92,10 +94,10 @@ void CMapWidget::paintEvent(QPaintEvent *)
     // draw screen
     CFrame bitmap(width, height);
 
-    if (m_map && !m_tiles->getSize()) {
+    if (m_map != nullptr && !m_tiles->getSize()) {
         sprintf(t, "failed to load: %s", m_tileset.c_str());
         drawFont(bitmap, 0,0, t, WHITE, true );
-    } else if (m_map) {
+    } else if (m_map != nullptr) {
         drawScreen(bitmap);
         if (m_showGrid) {
            // drawGrid(bitmap);
@@ -208,6 +210,9 @@ CFrame * CMapWidget::fromEntry(const CActor &entry)
 
 void CMapWidget::drawScreen(CFrame &bitmap)
 {
+    if (!m_map) {
+        return;
+    }
     const int maxRows = bitmap.hei() / FNT_BLOCK_SIZE;
     const int maxCols = bitmap.len() / FNT_BLOCK_SIZE;
     const int rows = std::min(maxRows, static_cast<int>(MAX_AXIS));

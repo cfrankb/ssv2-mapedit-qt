@@ -24,7 +24,6 @@ void parseSectionOptions(const std::string section, config_t &config, const stri
             auto const & val = list[1];
             auto const & key = std::strtoul(list[0].c_str(), nullptr, 16);
             config.images[key] = val;
-         //   qDebug("%.4x %s", key, val.c_str());
         } else {
             qDebug("list on line %d has %zu params but should be %d", line, list.size(), 2);
         }
@@ -99,7 +98,6 @@ char *parseLine(config_t & config, int &line, std::string &section, char *p)
         } else {
             parseSectionOptions(section, config, list, line);
         }
-        //config[section].emplace_back(list);
     }
     return e ? ++e : nullptr;
 }
@@ -132,7 +130,6 @@ void splitString(const std::string &str, stringvector_t &list)
 bool readConfig(config_t & config, const char *confName)
 {
     qDebug("parsing: %s", confName);
-    //config.clear();
 
     QFileWrap file;
     if (file.open(confName, "rb"))

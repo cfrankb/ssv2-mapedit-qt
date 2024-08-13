@@ -15,6 +15,7 @@ SOURCES += \
     dlgabout.cpp \
     dlgeditentry.cpp \
     dlgeditmap.cpp \
+    dlggame.cpp \
     dlgselect.cpp \
     framemap.cpp \
     imswrap.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     dlgabout.h \
     dlgeditentry.h \
     dlgeditmap.h \
+    dlggame.h \
     dlgselect.h \
     framemap.h \
     imswrap.h \
@@ -73,6 +75,7 @@ FORMS += \
     dlgabout.ui \
     dlgeditentry.ui \
     dlgeditmap.ui \
+    dlggame.ui \
     dlgselect.ui \
     mainwindow.ui
 

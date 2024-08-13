@@ -107,6 +107,8 @@ private:
     void initToolBar();
     void updateRecentFileActions();
     void initMapShortcuts();
+    bool editGameOptions();
+    void addNewMap();
 
 };
 #endif // MAINWINDOW_H

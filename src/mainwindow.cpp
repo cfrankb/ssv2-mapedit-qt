@@ -17,6 +17,7 @@
 #include "dlgeditmap.h"
 #include "dlgeditentry.h"
 #include "dlgabout.h"
+#include "dlggame.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -246,6 +247,7 @@ void MainWindow::updateMenus()
     ui->actionEdit_Paste->setEnabled(m_clipboard.selected.size() != 0
                                      && m_doc.map() != nullptr
                                      && m_clipboard.tileset == m_doc.map()->tileset())  ;
+    ui->actionEdit_Insert->setEnabled(m_doc.map() != nullptr);
 }
 
 void MainWindow::setStatus(const QString msg)
@@ -349,9 +351,10 @@ void MainWindow::on_actionFile_New_File_triggered()
     {
         m_doc.setFilename("");
         m_doc.forget();
-        CScript *script = new CScript();
-        m_doc.add(script);
         updateTitle();
+        if (editGameOptions()) {
+            addNewMap();
+        }
         emit mapChanged(m_doc.map());
         updateMenus();
     }
@@ -585,24 +588,33 @@ void MainWindow::on_actionMap_Last_triggered()
     updateMenus();
 }
 
+bool MainWindow::editGameOptions()
+{
+    CDlgGame dlg;
+    dlg.setWindowTitle(tr("Set Game Settings"));
+    if (dlg.exec() == QDialog::Accepted) {
+        QString gameID = dlg.gameID();
+        m_doc.setGameID(gameID.toStdString().c_str());
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void MainWindow::on_actionMap_Add_new_triggered()
 {
-    CDlgEditMap dlg;
-    dlg.setWindowTitle(tr("Add New Map"));
-    if (dlg.exec() == QDialog::Accepted) {
-        CScript *script = new CScript();
-        script->setName(dlg.name());
-        script->setTileSet(dlg.tileset());
-        m_doc.add(script);
-        m_doc.setCurrentIndex(m_doc.size() -1);
-        m_doc.setDirty(true);
-        emit mapChanged(m_doc.map());
-        updateMenus();
+    if (!editGameOptions()) {
+        return;
     }
+    addNewMap();
 }
 
 void MainWindow::on_actionMap_Insert_triggered()
 {
+    if (!editGameOptions()) {
+        return;
+    }
+
     CDlgEditMap dlg;
     dlg.setWindowTitle(tr("Insert New Map"));
     if (dlg.exec() == QDialog::Accepted) {
@@ -885,5 +897,21 @@ void MainWindow::on_actionEdit_EditObject_triggered()
             m_doc.setDirty(true);
             entry = newValue;
         }
+    }
+}
+
+void MainWindow::addNewMap()
+{
+    CDlgEditMap dlg;
+    dlg.setWindowTitle(tr("Add New Map"));
+    if (dlg.exec() == QDialog::Accepted) {
+        CScript *script = new CScript();
+        script->setName(dlg.name());
+        script->setTileSet(dlg.tileset());
+        m_doc.add(script);
+        m_doc.setCurrentIndex(m_doc.size() -1);
+        m_doc.setDirty(true);
+        emit mapChanged(m_doc.map());
+        updateMenus();
     }
 }

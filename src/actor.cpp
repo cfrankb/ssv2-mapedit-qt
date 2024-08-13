@@ -31,8 +31,13 @@ bool CActor::operator ==(const CActor &s)
 {
     return memcmp(this, &s, sizeof(s)) == 0;
 }
+
 bool CActor::operator !=(const CActor &s)
 {
     return memcmp(this, &s, sizeof(s)) != 0;
 }
 
+void CActor::clear()
+{
+    x = y = task = type = u1 = u2 = imageId = 0;
+}

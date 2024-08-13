@@ -10,6 +10,7 @@ CMapFile::CMapFile() : CScriptArch()
 
 CMapFile::~CMapFile()
 {
+    CScriptArch::~CScriptArch();
 }
 
 bool CMapFile::read()
@@ -35,7 +36,7 @@ void CMapFile::setFilename(const QString filename)
 
 CScript *CMapFile::map()
 {
-    return m_scripts[m_currIndex];
+    return m_size ? m_scripts[m_currIndex] : nullptr;
 }
 
 void CMapFile::setDirty(bool b)
